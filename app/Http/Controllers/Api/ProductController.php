@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    // Lấy danh sách sản phẩm (có phân trang + search)
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $query = Product::query();
 
         if ($request->has('search')) {

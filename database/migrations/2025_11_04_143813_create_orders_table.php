@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('customer_name');
-            $table->string('phone');
-            $table->text('address');
-            $table->date('order_date');
-            $table->date('delivery_date')->nullable();
-            $table->string('status')->default('pending');
-            $table->string('payment_method');
-            $table->decimal('total', 10, 2);
-            $table->timestamps();
-        });
+    Schema::create('orders', function (Blueprint $table) {
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->string('customer_name');
+        $table->string('phone');
+        $table->date('order_date');
+        $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
+        $table->string('payment_method')->default('cash');
+        $table->decimal('total', 10, 2)->default(0);
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
     }
 
     /**

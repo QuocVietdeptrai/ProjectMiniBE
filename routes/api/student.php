@@ -8,6 +8,6 @@ Route::middleware(['jwt.custom','role:admin,student_manager'])->group(function()
     Route::get('/students/list', [StudentController::class, 'index']);
     Route::post('/students/create', [StudentController::class, 'store']);
     Route::get('/students/{id}', [StudentController::class, 'show']);
-    Route::patch('/students/update/{id}', [StudentController::class, 'update']);
+    Route::post('/students/update/{id}', [StudentController::class, 'update']);
     Route::delete('/students/delete/{id}', [StudentController::class, 'destroy']);
 });

@@ -15,8 +15,8 @@ use App\Helpers\RandomHelper;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
+    //Đăng ký tài khoản người dùng
+    public function register(Request $request){
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -45,15 +45,15 @@ class AuthController extends Controller
                 // 'access_token' => $token,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
-    public function login(Request $request)
-    {
+    //Đăng nhập
+    public function login(Request $request){
         $credentials = $request->only('email', 'password');
-
-        // Validate dữ liệu
         $validator = Validator::make($credentials, [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
@@ -105,8 +105,8 @@ class AuthController extends Controller
 
 
 
-    public function me()
-    {
+    //Lấy thông tin cá nhân
+    public function me(){
         $user = JWTAuth::user();
         return response()->json([
             'code' => 'success',
@@ -120,13 +120,12 @@ class AuthController extends Controller
                 'address' => $user->address,
                 'image' => $user->image,
                 ]
-            ]);
+        ]);
     }
 
 
-   public function logout(Request $request)
-    {
-        $token = $request->cookie('access_token');
+    public function logout(Request $request){
+        $token = $request->cookie('access_token'); //Lấy token từ cookie
         info('Cookie token: ' . $token);
 
         if ($token) {
@@ -135,7 +134,7 @@ class AuthController extends Controller
             return response()->json(['code' => 'error', 'message' => 'Token not found'], 401);
         }
 
-        $cookie = Cookie::forget('access_token');
+        $cookie = Cookie::forget('access_token');//Xóa token
 
         return response()->json([
             'code' => 'success',
@@ -144,13 +143,12 @@ class AuthController extends Controller
     }
 
 
-    public function refresh()
-    {
+    public function refresh(){
         $token = JWTAuth::refresh();
         return response()->json(['access_token' => $token]);
     }
-    public function checkAuth(Request $request)
-    {
+    
+    public function checkAuth(Request $request){
         $token = $request->cookie('access_token');
 
         if (!$token) {
@@ -191,38 +189,40 @@ class AuthController extends Controller
             ], 401);
         }
     }
-    public function forgotpassword(Request $request)
-    {
-			$request->validate([
-					'email' => 'required|email'
-			]);
+    public function forgotpassword(Request $request){
+        $request->validate([
+                'email' => 'required|email'
+        ]);
 
-			$user = User::where('email', $request->email)->first();
+        //Lấy email từ User
+        $user = User::where('email', $request->email)->first();
 
-			if (!$user) {
-					return response()->json(['message' => 'Email không tồn tại!'], 404);
-			}
+        //Kiểm tra xem mail đó tồn tại không
+        if (!$user) {
+                return response()->json(['message' => 'Email không tồn tại!'], 404);
+        }
 
-			$otp = RandomHelper::generateOTP();
-			$user->otp = $otp;
-			$user->save();
+        $otp = RandomHelper::generateOTP();
+        $user->otp = $otp;
+        $user->save();
 
-			$subject = "Mã OTP khôi phục mật khẩu";
-			$content = "<p>Xin chào <b>{$user->name}</b>,</p>
-									<p>Mã OTP của bạn là: <b>{$otp}</b></p>
-									<p>OTP có hiệu lực trong 5 phút.</p>";
+        $subject = "Mã OTP khôi phục mật khẩu";
+        $content = "<p>Xin chào <b>{$user->name}</b>,</p>
+                                <p>Mã OTP của bạn là: <b>{$otp}</b></p>
+                                <p>OTP có hiệu lực trong 5 phút.</p>";
 
-			if (MailHelper::sendMail($user->email, $subject, $content)) {
-					return response()->json([
-							'message' => 'Đã gửi OTP tới email của bạn!',
-							'user' => $user,
-                            'code' => 'success'
-					]);
-			} else {
-					return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], 500);
-			}
+        if (MailHelper::sendMail($user->email, $subject, $content)) {
+                return response()->json([
+                        'message' => 'Đã gửi OTP tới email của bạn!',
+                        'user' => $user,
+                        'code' => 'success'
+                ]);
+        } else {
+                return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], 500);
+        }
     }
 
+    //Lấy otp
     public function otp_password(Request $request){
 		$request->validate([
 				'otp' => 'required|string'
@@ -238,30 +238,32 @@ class AuthController extends Controller
                 'code' => 'success'
 		]);
 	}
-    public function reset_password(Request $request)
-	{
-			$request->validate([
-					'email' => 'required|email',
-					'password' => 'required|string|min:8|confirmed',
-			]);
 
-			$user = User::where('email', $request->email)->first();
+    //Lấy lại mật khẩu
+    public function reset_password(Request $request){
+        $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string|min:8|confirmed',
+        ]);
 
-			if (!$user) {
-					return response()->json(['message' => 'Email không tồn tại!'], 404);
-			}
+        $user = User::where('email', $request->email)->first();
 
-			$user->password = Hash::make($request->password);
-			$user->otp = null; // Xóa OTP sau khi đổi mật khẩu thành công
-			$user->save();
+        if (!$user) {
+                return response()->json(['message' => 'Email không tồn tại!'], 404);
+        }
 
-			return response()->json([
-					'user' => $user,
-                    'code' => 'success'
-			]);
+        $user->password = Hash::make($request->password);
+        $user->otp = null; // Xóa OTP sau khi đổi mật khẩu thành công
+        $user->save();
+
+        return response()->json([
+                'user' => $user,
+                'code' => 'success'
+        ]);
 	}
-    public function update_profile(Request $request)
-    {
+
+    //Chỉnh sửa profile
+    public function update_profile(Request $request){
         // Lấy user hiện tại từ JWT
         $user = JWTAuth::user();
         if (!$user) {
@@ -287,7 +289,6 @@ class AuthController extends Controller
                 $user->image = $url;
             }
 
-            // Cập nhật các trường khác
             if ($request->filled('name')) {
                 $user->name = $request->name;
             }
@@ -319,8 +320,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    public function update_password(Request $request)
-    {
+    public function update_password(Request $request){
         $user = JWTAuth::user();
         if (!$user) {
             return response()->json([

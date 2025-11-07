@@ -15,5 +15,6 @@ class Student extends Model
         'phone',
         'class',
         'avatar',
+        'order_id',
     ];
 }

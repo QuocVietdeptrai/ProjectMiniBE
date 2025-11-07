@@ -10,8 +10,7 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function summary()
-    {
+    public function summary(){
         $totalProducts = Product::count();
         $totalStudents = Student::count();
         $totalOrders = Order::count();

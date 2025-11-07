@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
-    // Lấy danh sách sinh viên (có phân trang + tìm kiếm theo tên)
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $query = Student::query();
 
         if ($request->has('search')) {
@@ -22,7 +20,7 @@ class StudentController extends Controller
         }
 
         $query->orderBy('created_at', 'desc');
-        $students = $query->paginate(10); // số lượng trên 1 trang
+        $students = $query->paginate(5); // số lượng trên 1 trang
 
         return response()->json([
             'status' => 'success',
@@ -37,7 +35,7 @@ class StudentController extends Controller
             $request->validate([
                 'full_name' => 'required|string|max:255',
                 'dob' => 'required|date',
-                'gender' => 'required|in:male,female,other',
+                'gender' => 'required|string',
                 'email' => 'required|email|unique:students,email',
                 'phone' => 'nullable|string|max:20',
                 'class' => 'nullable|string|max:50',
@@ -46,7 +44,7 @@ class StudentController extends Controller
 
             $avatarUrl = null;
             if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
-                $avatarUrl = CloudinaryHelper::upload($request->file('avatar'), 'students');
+                $avatarUrl = CloudinaryHelper::upload($request->file('avatar'), 'products');
             }
 
             $student = Student::create([
@@ -60,16 +58,14 @@ class StudentController extends Controller
             ]);
 
             return response()->json([
-                'status' => 'success',
+                'code' => 'success',
                 'message' => 'Thêm sinh viên thành công',
                 'data' => $student
             ], 201);
 
         } catch (Exception $e) {
-            Log::error('Lỗi thêm sinh viên: ' . $e->getMessage());
             return response()->json([
-                'status' => 'error',
-                'message' => 'Có lỗi xảy ra, xem log để biết chi tiết'
+                'code' => 'error'
             ], 500);
         }
     }
@@ -95,51 +91,34 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $student = Student::findOrFail($id);
-
             $request->validate([
-                'full_name' => 'sometimes|string|max:255',
-                'dob' => 'sometimes|date',
-                'gender' => 'sometimes|in:male,female,other',
-                'email' => 'sometimes|email|unique:students,email,' . $id,
-                'phone' => 'nullable|string|max:20',
-                'class' => 'nullable|string|max:50',
-                'avatar' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+                'full_name' => 'required|string|max:255',
+                'dob' => 'required|date',
+                'gender' => 'required|string',
+                'email' => 'required|email|unique:students,email,'.$id,
+                'class' => 'required|string|max:50',
+                'avatar' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:5120',
             ]);
 
-            if ($request->has('full_name')) $student->full_name = $request->full_name;
-            if ($request->has('dob')) $student->dob = $request->dob;
-            if ($request->has('gender')) $student->gender = $request->gender;
-            if ($request->has('email')) $student->email = $request->email;
-            if ($request->has('phone')) $student->phone = $request->phone;
-            if ($request->has('class')) $student->class = $request->class;
+            $student = Student::findOrFail($id);
 
-            if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            if ($request->hasFile('avatar')) {
                 $avatarUrl = CloudinaryHelper::upload($request->file('avatar'), 'students');
-                if ($avatarUrl) $student->avatar = $avatarUrl;
+                $student->avatar = $avatarUrl;
             }
 
-            $student->save();
+            $student->update($request->except('avatar'));
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Cập nhật sinh viên thành công',
+                'status' => 'success', 
                 'data' => $student
-            ], 200);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Sinh viên không tồn tại',
-            ], 404);
+            ]);
         } catch (Exception $e) {
             Log::error('Lỗi cập nhật sinh viên: ' . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Có lỗi xảy ra, xem log để biết chi tiết',
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'Có lỗi xảy ra!'], 500);
         }
     }
+
 
     // Xóa sinh viên
     public function destroy($id)
