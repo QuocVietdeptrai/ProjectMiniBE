@@ -17,6 +17,7 @@ class Order extends Model
         'status',
         'payment_method',
         'total',
+        'status',
     ];
 
     // Quan hệ với Student
