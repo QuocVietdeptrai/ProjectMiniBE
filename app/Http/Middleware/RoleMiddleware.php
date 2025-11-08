@@ -53,8 +53,6 @@ class RoleMiddleware
 					'error' => 'Bạn không có quyền truy cập chức năng này'
 				], 403);
 			}
-
-			Log::info('Người dùng có quyền hợp lệ, cho phép đi tiếp.');
 			return $next($request);
 		} catch (\Exception $e) {
 			Log::error('Lỗi xác thực trong RoleMiddleware:', [
