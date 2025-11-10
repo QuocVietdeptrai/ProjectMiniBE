@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\CloudinaryHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Http\Requests\Auth\UpdatePasswordRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\OTPPasswordRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Helpers\MailHelper;
 use App\Helpers\RandomHelper;
@@ -16,343 +21,247 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthController extends Controller
 {
-	//Đăng ký tài khoản người dùng
-	public function register(Request $request)
-	{
-		$validator = Validator::make($request->all(), [
-			'name' => 'required|string|max:255',
-			'email' => 'required|email|unique:users,email',
-			'password' => 'required|string|min:6',
-			'role' => 'in:admin,product_manager,order_manager,student_manager,user'
-		]);
+    // Đăng ký tài khoản người dùng
+    public function register(RegisterRequest $request)
+    {
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => $request->role ?? 'user',
+                'status' => 'inactive',
+            ]);
 
-		if ($validator->fails()) {
-			return response()->json(['errors' => $validator->errors()], 422);
-		}
+            $token = JWTAuth::fromUser($user);
 
-		try {
-			$user = User::create([
-				'name' => $request->name,
-				'email' => $request->email,
-				'password' => bcrypt($request->password),
-				'role' => $request->role ?? 'user',
-			]);
+            return response()->json([
+                'code' => 'success',
+                'message' => 'Đăng ký thành công',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
-			$token = JWTAuth::fromUser($user);
+    // Đăng nhập
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
 
-			return response()->json([
-				'code' => 'success',
-				'message' => 'Đăng ký thành công',
-				// 'user' => $user,
-				// 'access_token' => $token,
-			]);
-		} catch (\Exception $e) {
-			return response()->json(['error' => $e->getMessage()], 500);
-		}
-	}
+        $user = User::where('email', $credentials['email'])->first();
+        if (!$user) {
+            return response()->json([
+                'code' => 'error',
+                'message' => 'Email không tồn tại!'
+            ], 404);
+        }
 
-	//Đăng nhập
-	public function login(Request $request)
-	{
-		$credentials = $request->only('email', 'password');
-		$validator = Validator::make($credentials, [
-			'email' => 'required|email',
-			'password' => 'required|string|min:6',
-		]);
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'code' => 'error',
+                'message' => 'Mật khẩu không đúng!'
+            ], 401);
+        }
 
-		if ($validator->fails()) {
-			return response()->json(['errors' => $validator->errors()], 422);
-		}
+        $token = JWTAuth::fromUser($user);
 
-		// Kiểm tra email có tồn tại
-		$user = User::where('email', $credentials['email'])->first();
-		if (!$user) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Email không tồn tại!'
-			], 404);
-		}
+        $cookie = cookie(
+            'access_token', $token, 60 * 24, '/', 'localhost', false, true, false, 'lax'
+        );
 
-		// Kiểm tra mật khẩu
-		if (!Hash::check($credentials['password'], $user->password)) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Mật khẩu không đúng!'
-			], 401);
-		}
+        return response()->json([
+            'code' => 'success',
+            'access_token' => $token,
+            'user' => $user,
+        ])->cookie($cookie);
+    }
 
-		// Tạo token JWT
-		$token = JWTAuth::fromUser($user);
+    // Lấy thông tin cá nhân
+    public function me()
+    {
+        $user = JWTAuth::user();
+        return response()->json([
+            'code' => 'success',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'created_at' => $user->created_at,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'image' => $user->image,
+            ]
+        ]);
+    }
 
-		// Lưu token vào cookie
-		$cookie = cookie(
-			'access_token',      // tên cookie
-			$token,              // giá trị token
-			60 * 24,             // thời gian sống (phút), 1 ngày
-			'/',                 // path
-			'localhost',         // domain
-			false,               // secure
-			true,                // httpOnly
-			false,               // raw
-			'lax'                // sameSite
-		);
+    // Đăng xuất
+    public function logout()
+    {
+        $token = request()->cookie('access_token');
 
-		return response()->json([
-			'code' => 'success',
-			'access_token' => $token,
-			'user' => $user,
-		])->cookie($cookie);
-	}
+        if ($token) {
+            JWTAuth::setToken($token)->invalidate();
+        } else {
+            return response()->json(['code' => 'error', 'message' => 'Token not found'], 401);
+        }
 
-	//Lấy thông tin cá nhân
-	public function me()
-	{
-		$user = JWTAuth::user();
-		return response()->json([
-			'code' => 'success',
-			'user' => [
-				'id' => $user->id,
-				'name' => $user->name,
-				'email' => $user->email,
-				'role' => $user->role,
-				'created_at' => $user->created_at,
-				'phone' => $user->phone,
-				'address' => $user->address,
-				'image' => $user->image,
-			]
-		]);
-	}
+        $cookie = Cookie::forget('access_token');
 
-	//Đăng xuất
-	public function logout(Request $request)
-	{
-		$token = $request->cookie('access_token'); //Lấy token từ cookie
-		info('Cookie token: ' . $token);
+        return response()->json([
+            'code' => 'success',
+            'message' => 'Logged out'
+        ])->withCookie($cookie);
+    }
 
-		if ($token) {
-			JWTAuth::setToken($token)->invalidate();
-		} else {
-			return response()->json(['code' => 'error', 'message' => 'Token not found'], 401);
-		}
+    // Refresh token
+    public function refresh()
+    {
+        $token = JWTAuth::refresh();
+        return response()->json(['access_token' => $token]);
+    }
 
-		$cookie = Cookie::forget('access_token'); //Xóa token
+    // Check authentication
+    public function checkAuth()
+    {
+        $token = request()->cookie('access_token');
 
-		return response()->json([
-			'code' => 'success',
-			'message' => 'Logged out'
-		])->withCookie($cookie);
-	}
+        if (!$token) {
+            return response()->json(['code' => 'error', 'message' => 'No token found'], 401);
+        }
 
-	//Refresh token
-	public function refresh()
-	{
-		$token = JWTAuth::refresh();
-		return response()->json(['access_token' => $token]);
-	}
+        try {
+            $user = JWTAuth::setToken($token)->authenticate();
 
-	public function checkAuth(Request $request)
-	{
-		$token = $request->cookie('access_token');
+            if (!$user) {
+                return response()->json(['code' => 'error', 'message' => 'User not found'], 401);
+            }
 
-		if (!$token) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'No token found'
-			], 401);
-		}
+            return response()->json([
+                'code' => 'success',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ]
+            ]);
+        } catch (TokenExpiredException $e) {
+            return response()->json(['code' => 'error', 'message' => 'Token expired'], 401);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+    }
 
-		try {
-			$user = JWTAuth::setToken($token)->authenticate();
+    // Quên mật khẩu
+    public function forgotpassword(ForgotPasswordRequest $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Email không tồn tại!'], 404);
+        }
 
-			if (!$user) {
-				return response()->json([
-					'code' => 'error',
-					'message' => 'User not found'
-				], 401);
-			}
+        $otp = RandomHelper::generateOTP();
+        $user->otp = $otp;
+        $user->save();
 
-			return response()->json([
-				'code' => 'success',
-				'user' => [
-					'id' => $user->id,
-					'name' => $user->name,
-					'email' => $user->email,
-					'role' => $user->role,
-				]
-			]);
-		} catch (TokenExpiredException $e) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Token expired'
-			], 401);
-		} catch (\Exception $e) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Unauthorized'
-			], 401);
-		}
-	}
+        $subject = "Mã OTP khôi phục mật khẩu";
+        $content = "<p>Xin chào <b>{$user->name}</b>,</p>
+                    <p>Mã OTP của bạn là: <b>{$otp}</b></p>
+                    <p>OTP có hiệu lực trong 5 phút.</p>";
 
-	//Quên mật khẩu
-	public function forgotpassword(Request $request)
-	{
-		$request->validate([
-			'email' => 'required|email'
-		]);
+        if (MailHelper::sendMail($user->email, $subject, $content)) {
+            return response()->json([
+                'message' => 'Đã gửi OTP tới email của bạn!',
+                'code' => 'success'
+            ]);
+        } else {
+            return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], 500);
+        }
+    }
 
-		//Lấy email từ User
-		$user = User::where('email', $request->email)->first();
+    // Xác nhận OTP
+    public function otp_password(OTPPasswordRequest $request)
+    {
+        $user = User::where('otp', $request->otp)->first();
 
-		//Kiểm tra xem mail đó tồn tại không
-		if (!$user) {
-			return response()->json(['message' => 'Email không tồn tại!'], 404);
-		}
+        if (!$user) {
+            return response()->json(['message' => 'OTP không tồn tại!'], 404);
+        }
 
-		$otp = RandomHelper::generateOTP();
-		$user->otp = $otp;
-		$user->save();
+        return response()->json([
+            'code' => 'success',
+            'message' => 'Xác nhận OTP thành công !'
+        ]);
+    }
 
-		$subject = "Mã OTP khôi phục mật khẩu";
-		$content = "<p>Xin chào <b>{$user->name}</b>,</p>
-                                <p>Mã OTP của bạn là: <b>{$otp}</b></p>
-                                <p>OTP có hiệu lực trong 5 phút.</p>";
+    // Reset mật khẩu
+    public function reset_password(ResetPasswordRequest $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Email không tồn tại!'], 404);
+        }
 
-		if (MailHelper::sendMail($user->email, $subject, $content)) {
-			return response()->json([
-				'message' => 'Đã gửi OTP tới email của bạn!',
-				'user' => $user,
-				'code' => 'success'
-			]);
-		} else {
-			return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], 500);
-		}
-	}
+        $user->password = Hash::make($request->password);
+        $user->otp = null;
+        $user->save();
 
-	//Lấy otp
-	public function otp_password(Request $request)
-	{
-		$request->validate([
-			'otp' => 'required|string'
-		]);
+        return response()->json([
+            'code' => 'success',
+            'message' => 'Đặt lại mật khẩu thành công !'
+        ]);
+    }
 
-		$user = User::where('otp', $request->otp)->first();
+    // Cập nhật profile
+    public function update_profile(UpdateProfileRequest $request)
+    {
+        $user = JWTAuth::user();
+        if (!$user) {
+            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], 401);
+        }
 
-		if (!$user) {
-			return response()->json(['message' => 'OTP không tồn tại!'], 404);
-		}
-		return response()->json([
-			'user' => $user,
-			'code' => 'success'
-		]);
-	}
+        try {
+            if ($request->hasFile('avatar')) {
+                $url = CloudinaryHelper::upload($request->file('avatar'), 'avatars');
+                $user->image = $url;
+            }
 
-	//Lấy lại mật khẩu
-	public function reset_password(Request $request)
-	{
-		$request->validate([
-			'email' => 'required|email',
-			'password' => 'required|string|min:8|confirmed',
-		]);
+            if ($request->filled('name')) $user->name = $request->name;
+            if ($request->filled('phone')) $user->phone = $request->phone;
+            if ($request->filled('address')) $user->address = $request->address;
 
-		$user = User::where('email', $request->email)->first();
+            $user->save();
 
-		if (!$user) {
-			return response()->json(['message' => 'Email không tồn tại!'], 404);
-		}
+            return response()->json([
+                'code' => 'success',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'phone' => $user->phone,
+                    'address' => $user->address,
+                    'image' => $user->image,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 'error', 'message' => 'Cập nhật thất bại: ' . $e->getMessage()], 500);
+        }
+    }
 
-		$user->password = Hash::make($request->password);
-		$user->otp = null; // Xóa OTP sau khi đổi mật khẩu thành công
-		$user->save();
+    // Cập nhật mật khẩu
+    public function update_password(UpdatePasswordRequest $request)
+    {
+        $user = JWTAuth::user();
+        if (!$user) {
+            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], 401);
+        }
 
-		return response()->json([
-			'user' => $user,
-			'code' => 'success'
-		]);
-	}
+        $user->password = Hash::make($request->password);
+        $user->save();
 
-	//Chỉnh sửa profile
-	public function update_profile(Request $request)
-	{
-		// Lấy user hiện tại từ JWT
-		$user = JWTAuth::user();
-		if (!$user) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Không tìm thấy user'
-			], 401);
-		}
-
-		// Validate dữ liệu gửi lên
-		$request->validate([
-			'name'    => 'sometimes|string|max:255',
-			'phone'   => 'sometimes|string|max:20',
-			'address' => 'sometimes|string|max:255',
-			'avatar'  => 'sometimes|file|mimes:jpg,jpeg,png|max:5120', // 5MB
-		]);
-
-		try {
-			// Upload avatar nếu có
-			if ($request->hasFile('avatar')) {
-				$file = $request->file('avatar');
-				$url = CloudinaryHelper::upload($file, 'avatars');
-				$user->image = $url;
-			}
-
-			if ($request->filled('name')) {
-				$user->name = $request->name;
-			}
-			if ($request->filled('phone')) {
-				$user->phone = $request->phone;
-			}
-			if ($request->filled('address')) {
-				$user->address = $request->address;
-			}
-
-			$user->save();
-
-			return response()->json([
-				'code' => 'success',
-				'user' => [
-					'id'      => $user->id,
-					'name'    => $user->name,
-					'email'   => $user->email,
-					'role'    => $user->role,
-					'phone'   => $user->phone,
-					'address' => $user->address,
-					'image'   => $user->image,
-				]
-			]);
-		} catch (\Exception $e) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Cập nhật thất bại: ' . $e->getMessage()
-			], 500);
-		}
-	}
-
-	// Cập nhật mật khẩu
-	public function update_password(Request $request)
-	{
-		$user = JWTAuth::user();
-		if (!$user) {
-			return response()->json([
-				'code' => 'error',
-				'message' => 'Không tìm thấy user'
-			], 401);
-		}
-
-		// Validate dữ liệu từ frontend
-		$request->validate([
-			'password' => 'required|string|min:6|confirmed', // confirmed sẽ check password_confirmation
-		]);
-
-		// Cập nhật mật khẩu mới
-		$user->password = Hash::make($request->password);
-		$user->save();
-
-		return response()->json([
-			'code' => 'success',
-			'message' => 'Đổi mật khẩu thành công',
-		]);
-	}
+        return response()->json(['code' => 'success', 'message' => 'Đổi mật khẩu thành công']);
+    }
 }
