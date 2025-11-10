@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\StatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
@@ -29,7 +30,7 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $products
-        ], 200);
+        ], StatusCode::OK);
     }
 
     // Lấy tất cả sản phẩm (dùng cho tạo đơn hàng)
@@ -47,7 +48,7 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $products
-        ], 200);
+        ], StatusCode::OK);
     }
 
     // Thêm sản phẩm
@@ -71,13 +72,13 @@ class ProductController extends Controller
                 'status' => 'success',
                 'message' => 'Thêm sản phẩm thành công',
                 'data' => $product
-            ], 201);
+            ], StatusCode::CREATED);
         } catch (Exception $e) {
             Log::error('Lỗi tạo sản phẩm: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra, xem log để biết chi tiết'
-            ], 500);
+            ], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -90,12 +91,12 @@ class ProductController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $product
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sản phẩm không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 
@@ -116,12 +117,12 @@ class ProductController extends Controller
                 'status' => 'success',
                 'message' => 'Cập nhật sản phẩm thành công',
                 'data' => $product
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sản phẩm không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 
@@ -135,12 +136,12 @@ class ProductController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa sản phẩm thành công',
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sản phẩm không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 }

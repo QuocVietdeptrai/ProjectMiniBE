@@ -12,6 +12,7 @@ use App\Models\Student;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Enums\StatusCode;
 
 class OrderController extends Controller
 {
@@ -36,13 +37,13 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $orders
-            ], 200);
+            ], StatusCode::OK);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Không thể lấy danh sách đơn hàng.',
                 'error' => $e->getMessage()
-            ], 500);
+            ], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -92,7 +93,7 @@ class OrderController extends Controller
                 'order' => $order->load('items.product'),
                 'student' => $student
             ]
-        ], 201);
+        ], StatusCode::CREATED);
     }
 
     // Lấy chi tiết đơn hàng
@@ -127,12 +128,12 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $data
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Đơn hàng không tồn tại'
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 
@@ -178,7 +179,7 @@ class OrderController extends Controller
                     return response()->json([
                         'status' => 'error',
                         'message' => "Sản phẩm '{$productModel->name}' chỉ còn {$productModel->quantity} trong kho, không đủ để hoàn tất đơn!"
-                    ], 400);
+                    ], StatusCode::BAD_REQUEST);
                 }
                 $productModel->decrement('quantity', $product['quantity']);
             }
@@ -200,7 +201,7 @@ class OrderController extends Controller
             'status' => 'success',
             'message' => 'Cập nhật đơn hàng thành công!',
             'data' => $order
-        ], 200);
+        ], StatusCode::OK);
     }
 
     // Xóa đơn hàng
@@ -213,12 +214,12 @@ class OrderController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa đơn hàng thành công'
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Đơn hàng không tồn tại'
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 }

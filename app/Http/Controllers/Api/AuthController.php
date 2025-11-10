@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Helpers\MailHelper;
 use App\Helpers\RandomHelper;
+use App\Enums\StatusCode;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthController extends Controller
@@ -38,9 +39,9 @@ class AuthController extends Controller
             return response()->json([
                 'code' => 'success',
                 'message' => 'Đăng ký thành công',
-            ]);
+            ], StatusCode::CREATED);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -54,14 +55,14 @@ class AuthController extends Controller
             return response()->json([
                 'code' => 'error',
                 'message' => 'Email không tồn tại!'
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
 
         if (!Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'code' => 'error',
                 'message' => 'Mật khẩu không đúng!'
-            ], 401);
+            ], StatusCode::UNAUTHORIZED);
         }
 
         $token = JWTAuth::fromUser($user);
@@ -104,7 +105,7 @@ class AuthController extends Controller
         if ($token) {
             JWTAuth::setToken($token)->invalidate();
         } else {
-            return response()->json(['code' => 'error', 'message' => 'Token not found'], 401);
+            return response()->json(['code' => 'error', 'message' => 'Token not found'], StatusCode::BAD_REQUEST);
         }
 
         $cookie = Cookie::forget('access_token');
@@ -128,14 +129,14 @@ class AuthController extends Controller
         $token = request()->cookie('access_token');
 
         if (!$token) {
-            return response()->json(['code' => 'error', 'message' => 'No token found'], 401);
+            return response()->json(['code' => 'error', 'message' => 'No token found'], StatusCode::BAD_REQUEST);
         }
 
         try {
             $user = JWTAuth::setToken($token)->authenticate();
 
             if (!$user) {
-                return response()->json(['code' => 'error', 'message' => 'User not found'], 401);
+                return response()->json(['code' => 'error', 'message' => 'User not found'], StatusCode::UNAUTHORIZED);
             }
 
             return response()->json([
@@ -148,9 +149,9 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (TokenExpiredException $e) {
-            return response()->json(['code' => 'error', 'message' => 'Token expired'], 401);
+            return response()->json(['code' => 'error', 'message' => 'Token expired'], StatusCode::UNAUTHORIZED);
         } catch (\Exception $e) {
-            return response()->json(['code' => 'error', 'message' => 'Unauthorized'], 401);
+            return response()->json(['code' => 'error', 'message' => 'Unauthorized'], StatusCode::UNAUTHORIZED);
         }
     }
 
@@ -159,7 +160,7 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
         if (!$user) {
-            return response()->json(['message' => 'Email không tồn tại!'], 404);
+            return response()->json(['message' => 'Email không tồn tại!'], StatusCode::NOT_FOUND);
         }
 
         $otp = RandomHelper::generateOTP();
@@ -177,7 +178,7 @@ class AuthController extends Controller
                 'code' => 'success'
             ]);
         } else {
-            return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], 500);
+            return response()->json(['message' => 'Không thể gửi mail, vui lòng thử lại sau!'], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -187,7 +188,7 @@ class AuthController extends Controller
         $user = User::where('otp', $request->otp)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'OTP không tồn tại!'], 404);
+            return response()->json(['message' => 'OTP không tồn tại!'], StatusCode::NOT_FOUND);
         }
 
         return response()->json([
@@ -201,7 +202,7 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
         if (!$user) {
-            return response()->json(['message' => 'Email không tồn tại!'], 404);
+            return response()->json(['message' => 'Email không tồn tại!'], StatusCode::NOT_FOUND);
         }
 
         $user->password = Hash::make($request->password);
@@ -219,7 +220,7 @@ class AuthController extends Controller
     {
         $user = JWTAuth::user();
         if (!$user) {
-            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], 401);
+            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], StatusCode::UNAUTHORIZED);
         }
 
         try {
@@ -247,7 +248,7 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            return response()->json(['code' => 'error', 'message' => 'Cập nhật thất bại: ' . $e->getMessage()], 500);
+            return response()->json(['code' => 'error', 'message' => 'Cập nhật thất bại: ' . $e->getMessage()], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -256,7 +257,7 @@ class AuthController extends Controller
     {
         $user = JWTAuth::user();
         if (!$user) {
-            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], 401);
+            return response()->json(['code' => 'error', 'message' => 'Không tìm thấy user'], StatusCode::UNAUTHORIZED);
         }
 
         $user->password = Hash::make($request->password);

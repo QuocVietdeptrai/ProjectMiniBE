@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Enums\StatusCode;
 
 class UserController extends Controller
 {
@@ -27,7 +28,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $users
-        ], 200);
+        ], StatusCode::OK);
     }
 
     // Tạo người dùng mới
@@ -52,7 +53,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $user
-        ], 201);
+        ], StatusCode::CREATED);
     }
 
     // Xem chi tiết người dùng
@@ -63,12 +64,12 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $user
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Người dùng không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 
@@ -96,12 +97,12 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Người dùng không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Lỗi server: ' . $e->getMessage()
-            ], 500);
+            ], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -114,12 +115,12 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa người dùng thành công',
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Người dùng không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 }

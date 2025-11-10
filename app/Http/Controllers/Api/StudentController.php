@@ -8,6 +8,7 @@ use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Student;
 use App\Helpers\CloudinaryHelper;
 use Exception;
+use App\Enums\StatusCode;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StudentController extends Controller
@@ -19,7 +20,7 @@ class StudentController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $students
-        ], 200);
+        ], StatusCode::OK);
     }
 
     // Thêm sinh viên
@@ -45,12 +46,12 @@ class StudentController extends Controller
                 'status' => 'success',
                 'message' => 'Thêm sinh viên thành công',
                 'data' => $student
-            ], 201);
+            ],  StatusCode::CREATED);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra!'
-            ], 500);
+            ], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -62,12 +63,12 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $student
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sinh viên không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 
@@ -87,17 +88,17 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $student
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sinh viên không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Có lỗi xảy ra!',
-            ], 500);
+            ], StatusCode::INTERNAL_ERR);
         }
     }
 
@@ -111,12 +112,12 @@ class StudentController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa sinh viên thành công',
-            ], 200);
+            ], StatusCode::OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sinh viên không tồn tại',
-            ], 404);
+            ], StatusCode::NOT_FOUND);
         }
     }
 }
