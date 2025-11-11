@@ -15,6 +15,6 @@ Route::middleware('jwt.custom')->group(function(){
     Route::post('/logout', [AuthController::class,'logout']);
     Route::post('/refresh', [AuthController::class,'refresh']);
     Route::get('/me', [AuthController::class,'me']);
-    Route::post('/update_profile', [AuthController::class,'update_profile']);
-    Route::post('/update_password', [AuthController::class,'update_password']);
+    Route::post('/update_profile', [AuthController::class,'updateProfile']);
+    Route::post('/update_password', [AuthController::class,'updatePassword']);
 });
