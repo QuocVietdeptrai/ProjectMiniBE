@@ -17,9 +17,8 @@ class CheckAuthAction
     ) {}
 
     public function __invoke(Request $request): UserResource
-    {
+    {   
         $token = $request->cookie('access_token');
-        Log::info('CheckAuthAction: token='.$token);
         if (!$token) {
             return (new MessageResource([
                 'code' => 'error',

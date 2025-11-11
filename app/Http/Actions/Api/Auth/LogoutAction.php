@@ -3,7 +3,6 @@
 namespace App\Http\Actions\Api\Auth;
 
 use App\Domain\Auth\UseCase\LogoutUseCase;
-use App\Http\Resources\Api\Auth\MessageResource;
 use App\Http\Responders\Api\Auth\MessageResponder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -15,23 +14,26 @@ class LogoutAction
         private MessageResponder $responder
     ) {}
 
-    public function __invoke(Request $request): MessageResource
+    public function __invoke(Request $request)
     {
         $token = $request->cookie('access_token');
 
         if (!$token) {
-            return (new MessageResource([
+            return ($this->responder)([
                 'code' => 'error',
                 'message' => 'Token not found'
-            ]))->setStatusCode(400);
+            ])->setStatusCode(400);
         }
 
-        $result = ($this->useCase)($token);
+        // Thực hiện logout logic nếu cần
+        $this->useCase->__invoke($token);
 
-        $response = ($this->responder)($result);
+        $response = ($this->responder)([
+            'code' => 'success',
+            'message' => 'Logout successful'
+        ]);
 
-        $cookie = Cookie::forget('access_token');
-
-        return $response->withCookie($cookie);
+        // Xóa cookie access_token
+        return $response->response()->withCookie(Cookie::forget('access_token'));
     }
 }
