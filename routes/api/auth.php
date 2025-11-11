@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/register', [AuthController::class,'register']);
 Route::post('/login', [AuthController::class,'login']);
 Route::post('/forgotpassword', [AuthController::class, 'forgotpassword']);
-Route::post('/otp_password', [AuthController::class, 'otp_password']);
-Route::post('/reset_password', [AuthController::class, 'reset_password']);
+Route::post('/otp_password', [AuthController::class, 'verifyOtp']);
+Route::post('/reset_password', [AuthController::class, 'resetPassword']);
 Route::get('/check-auth', [AuthController::class, 'checkAuth']);
 
 Route::middleware('jwt.custom')->group(function(){
