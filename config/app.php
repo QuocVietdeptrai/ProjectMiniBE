@@ -149,15 +149,13 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        App\Providers\AuthDomainServiceProvider::class,
+        App\Providers\DomainServiceProvider::class,
 
         /*
         * Application Service Providers...
         */
         App\Providers\AppServiceProvider::class,
-        // App\Providers\RouteServiceProvider::class, 
-        // App\Providers\AuthServiceProvider::class,
-        // App\Providers\EventServiceProvider::class,
+
 
     ],
 ];

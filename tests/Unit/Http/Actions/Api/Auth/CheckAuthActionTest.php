@@ -8,7 +8,6 @@ use App\Http\Responders\Api\Auth\UserResponder;
 use App\Http\Resources\Api\Auth\MessageResource;
 use App\Http\Resources\Api\Auth\UserResource;
 use App\Domain\Auth\Domain\Entity\UserEntity;
-use App\Domain\Auth\Exception\AuthenticationException;
 use Illuminate\Http\Request;
 use Mockery;
 use Tests\TestCase;
