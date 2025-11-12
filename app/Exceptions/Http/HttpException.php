@@ -2,6 +2,7 @@
 
 namespace App\Exceptions\Http;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
 use Throwable;
 
@@ -23,7 +24,7 @@ class HttpException extends SymfonyHttpException
     ) {
         // Nếu không có message, dùng message mặc định của Symfony
         if ($message === null || $message === '') {
-            $message = \Symfony\Component\HttpFoundation\Response::$statusTexts[$statusCode] ?? 'Error';
+            $message = Response::$statusTexts[$statusCode] ?? 'Error';
         }
 
         parent::__construct($statusCode, $message, $previous, $headers, $code);

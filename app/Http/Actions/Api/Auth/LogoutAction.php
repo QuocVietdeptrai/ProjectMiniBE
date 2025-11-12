@@ -3,6 +3,7 @@
 namespace App\Http\Actions\Api\Auth;
 
 use App\Domain\Auth\UseCase\LogoutUseCase;
+use App\Enums\StatusCode;
 use App\Http\Responders\Api\Auth\MessageResponder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -12,7 +13,7 @@ class LogoutAction
     public function __construct(
         private LogoutUseCase $useCase,
         private MessageResponder $responder
-    ) {}
+    ) {}    
 
     public function __invoke(Request $request)
     {
@@ -22,7 +23,7 @@ class LogoutAction
             return ($this->responder)([
                 'code' => 'error',
                 'message' => 'Token not found'
-            ])->setStatusCode(400);
+            ])->response()->setStatusCode(StatusCode::UNAUTHORIZED);
         }
 
         // Thực hiện logout logic nếu cần

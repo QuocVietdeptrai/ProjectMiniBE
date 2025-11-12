@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Order;
 
+use App\Enums\StatusCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -35,6 +36,6 @@ class UpdateOrderRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'status' => 'error',
             'errors' => $validator->errors()
-        ], 422));
+        ], StatusCode::UNPROCESSABLE_ENTITY));
     }
 }

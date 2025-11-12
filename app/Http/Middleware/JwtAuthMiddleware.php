@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\StatusCode;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +33,7 @@ class JwtAuthMiddleware
                 return response()->json([
                     'error' => 'ACCOUNT_INACTIVE',
                     'message' => 'Tài khoản đã bị vô hiệu hóa.'
-                ], 403)
+                ], StatusCode::FORBIDDEN)
                 ->withCookie(cookie()->forget('access_token')); //Xóa token 
             }
 
@@ -61,7 +62,7 @@ class JwtAuthMiddleware
         return response()->json([
             'error' => 'UNAUTHORIZED',
             'message' => $message
-        ], 401)
+        ], StatusCode::UNAUTHORIZED)
         ->withCookie(cookie()->forget('access_token'));
     }
 }

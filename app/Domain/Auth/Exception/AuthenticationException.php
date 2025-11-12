@@ -14,7 +14,7 @@ class AuthenticationException extends HttpException
         string $message = self::MESSAGE,
         int $statusCode = self::STATUS_CODE,
         $code = 0,
-        \Exception $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($statusCode, $message, $code, $previous);
     }

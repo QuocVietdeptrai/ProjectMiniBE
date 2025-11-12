@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\StatusCode;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class RoleMiddleware
 			Log::info('Token nhận được:', [$token]);
 
 			if (!$token) {
-				return response()->json(['error' => 'Thiếu token, vui lòng đăng nhập'], 401);
+				return response()->json(['error' => 'Thiếu token, vui lòng đăng nhập'], StatusCode::UNAUTHORIZED);
 			}
 
 			// Xác thực token
@@ -35,7 +36,7 @@ class RoleMiddleware
 
 			if (!$user) {
 				Log::warning('Không xác thực được user từ token!');
-				return response()->json(['error' => 'Người dùng không tồn tại hoặc token không hợp lệ'], 401);
+				return response()->json(['error' => 'Người dùng không tồn tại hoặc token không hợp lệ'], StatusCode::UNAUTHORIZED);
 			}
 
 			Log::info('Token hợp lệ, user:', [
@@ -51,7 +52,7 @@ class RoleMiddleware
 				Log::warning("Quyền không hợp lệ. User role: {$user->role}, yêu cầu: " . implode(', ', $roles));
 				return response()->json([
 					'error' => 'Bạn không có quyền truy cập chức năng này'
-				], 403);
+				], StatusCode::FORBIDDEN);
 			}
 			return $next($request);
 		} catch (\Exception $e) {
@@ -62,7 +63,7 @@ class RoleMiddleware
 			return response()->json([
 				'error' => 'Lỗi xác thực, vui lòng đăng nhập lại',
 				'message' => $e->getMessage()
-			], 401);
+			], StatusCode::UNAUTHORIZED);
 		}
 	}
 }

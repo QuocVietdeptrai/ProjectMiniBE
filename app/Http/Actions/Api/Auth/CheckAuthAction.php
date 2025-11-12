@@ -16,14 +16,14 @@ class CheckAuthAction
         private UserResponder $responder
     ) {}
 
-    public function __invoke(Request $request): UserResource
+    public function __invoke(Request $request)
     {   
         $token = $request->cookie('access_token');
         if (!$token) {
             return (new MessageResource([
                 'code' => 'error',
                 'message' => 'Token not found'
-            ]))->setStatusCode(400);
+            ]));
         }
 
         $userEntity = ($this->useCase)($token);
