@@ -69,7 +69,7 @@ class LogoutActionTest extends TestCase
             ->andReturn(new JsonResponse([
                 'code' => 'error',
                 'message' => 'Token not found',
-            ], 400));
+            ], 401));
 
         // Gọi action
         $action = new LogoutAction($useCase, $responder);
@@ -80,7 +80,7 @@ class LogoutActionTest extends TestCase
         $response = $action($request);
 
         // Kiểm tra
-        $this->assertEquals(400, $response->status());
+        $this->assertEquals(401, $response->status());
         $this->assertEquals('Token not found', $response->getData()->message);
     }
 }

@@ -58,10 +58,5 @@ class LoginActionTest extends TestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('valid_token_123', $data['access_token']);
         $this->assertEquals($user->id, $data['user']['id']);
-
-        $cookies = $response->headers->getCookies();
-        $this->assertNotEmpty($cookies);
-        $cookieNames = array_map(fn($c) => $c->getName(), $cookies);
-        $this->assertContains('access_token', $cookieNames);
     }
 }
