@@ -22,6 +22,19 @@ class DbProductInfrastructure implements ProductRepository
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
+    private function toEntity(Product $model): ProductEntity
+    {
+        return new ProductEntity(
+            id: $model->id,
+            name: $model->name,
+            price: (float) $model->price,
+            description: $model->description,
+            quantity: (int) $model->quantity,
+            image: $model->image,
+            created_at: $model->created_at?->format('Y-m-d H:i:s'),
+            updated_at: $model->updated_at?->format('Y-m-d H:i:s')
+        );
+    }
 
     public function all(?string $search): array
     {
@@ -73,19 +86,5 @@ class DbProductInfrastructure implements ProductRepository
     {
         $model = Product::find($id);
         return $model ? $model->delete() : false;
-    }
-
-    private function toEntity(Product $model): ProductEntity
-    {
-        return new ProductEntity(
-            id: $model->id,
-            name: $model->name,
-            price: (float) $model->price,
-            description: $model->description,
-            quantity: (int) $model->quantity,
-            image: $model->image,
-            created_at: $model->created_at?->format('Y-m-d H:i:s'),
-            updated_at: $model->updated_at?->format('Y-m-d H:i:s')
-        );
     }
 }

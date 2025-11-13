@@ -13,14 +13,13 @@ class ResetPasswordUseCase
 
     public function __invoke(string $email, string $password): array
     {
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findModelByEmail($email);
         if (!$user) {
             return ['success' => false, 'message' => 'Email không tồn tại!'];
         }
 
-        $user->password = Hash::make($password);
-        $user->otp = null;
-        $user->save();
+        // Chỉ update password
+        $this->userRepository->updatePassword($user->id, Hash::make($password));
 
         return ['success' => true, 'message' => 'Đặt lại mật khẩu thành công!'];
     }

@@ -9,18 +9,17 @@ use App\Models\Student;
 use App\Helpers\CloudinaryHelper;
 use Exception;
 use App\Enums\StatusCode;
+use App\Http\Actions\Api\Student\ShowAction;
+use App\Http\Actions\Api\Student\IndexAction;
+use App\Http\Actions\Api\Student\UpdateAction;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    // Lấy danh sách sinh viên
-    public function index()
+    public function index(IndexAction $action, Request $request)
     {
-        $students = Student::orderBy('created_at', 'desc')->paginate(5);
-        return response()->json([
-            'status' => 'success',
-            'data' => $students
-        ], StatusCode::OK);
+        return $action($request);
     }
 
     // Thêm sinh viên
@@ -56,50 +55,14 @@ class StudentController extends Controller
     }
 
     // Xem chi tiết sinh viên
-    public function show($id)
+    public function show(ShowAction $action, int $id)
     {
-        try {
-            $student = Student::findOrFail($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $student
-            ], StatusCode::OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Sinh viên không tồn tại',
-            ], StatusCode::NOT_FOUND);
-        }
+        return $action($id);
     }
 
-    // Cập nhật sinh viên
-    public function update(UpdateStudentRequest $request, $id)
+    public function update(UpdateAction $action, UpdateStudentRequest $request, int $id)
     {
-        try {
-            $student = Student::findOrFail($id);
-
-            if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
-                $avatarUrl = CloudinaryHelper::upload($request->file('avatar'), 'students');
-                $student->avatar = $avatarUrl;
-            }
-
-            $student->update($request->except('avatar'));
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $student
-            ], StatusCode::OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Sinh viên không tồn tại',
-            ], StatusCode::NOT_FOUND);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Có lỗi xảy ra!',
-            ], StatusCode::INTERNAL_ERR);
-        }
+        return $action($request, $id);
     }
 
     // Xóa sinh viên

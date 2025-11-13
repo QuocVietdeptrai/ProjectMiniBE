@@ -14,21 +14,24 @@ class ForgotPasswordUseCase
 
     public function __invoke(string $email): array
     {
-        $user = $this->userRepository->findByEmail($email);
-        if (!$user) {
+        $userEntity = $this->userRepository->findByEmail($email);
+        if (!$userEntity) {
             return ['success' => false, 'message' => 'Email không tồn tại!'];
         }
-
         $otp = RandomHelper::generateOTP();
-        $user->otp = $otp;
-        $user->save();
 
+        $updated = $this->userRepository->updateOtp($email, $otp);
+        if (!$updated) {
+            return ['success' => false, 'message' => 'Không thể cập nhật OTP!'];
+        }
+
+        // 4️⃣ Gửi mail
         $subject = "Mã OTP khôi phục mật khẩu";
-        $content = "<p>Xin chào <b>{$user->name}</b>,</p>
+        $content = "<p>Xin chào <b>{$userEntity->name}</b>,</p>
                     <p>Mã OTP của bạn là: <b>{$otp}</b></p>
                     <p>OTP có hiệu lực trong 5 phút.</p>";
 
-        $sent = MailHelper::sendMail($user->email, $subject, $content);
+        $sent = MailHelper::sendMail($userEntity->email, $subject, $content);
 
         return [
             'success' => $sent,

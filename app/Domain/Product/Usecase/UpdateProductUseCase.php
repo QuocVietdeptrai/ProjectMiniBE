@@ -1,5 +1,4 @@
 <?php
-// File: app/Domain/Product/UseCase/UpdateProductUseCase.php
 
 namespace App\Domain\Product\UseCase;
 

@@ -1,5 +1,4 @@
 <?php
-// File: app/Http/Actions/Api/Product/IndexAction.php
 
 namespace App\Http\Actions\Api\Product;
 

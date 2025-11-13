@@ -25,7 +25,7 @@ class RoleMiddleware
 				}
 			}
 
-			Log::info('Token nhận được:', [$token]);
+	
 
 			if (!$token) {
 				return response()->json(['error' => 'Thiếu token, vui lòng đăng nhập'], StatusCode::UNAUTHORIZED);
@@ -39,11 +39,6 @@ class RoleMiddleware
 				return response()->json(['error' => 'Người dùng không tồn tại hoặc token không hợp lệ'], StatusCode::UNAUTHORIZED);
 			}
 
-			Log::info('Token hợp lệ, user:', [
-				'id' => $user->id,
-				'email' => $user->email,
-				'role' => $user->role,
-			]);
 
 			Auth::setUser($user);
 

@@ -1,5 +1,4 @@
 <?php
-// File: app/Http/Responders/Api/Product/ListProductResponder.php
 
 namespace App\Http\Responders\Api\Product;
 

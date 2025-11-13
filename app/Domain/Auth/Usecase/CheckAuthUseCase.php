@@ -17,14 +17,11 @@ class CheckAuthUseCase
     public function __invoke(string $token): UserEntity
     {
         try {
-            JWTAuth::setToken($token);
-            $user = JWTAuth::authenticate();
-
-            if (!$user) {
-                throw new AuthenticationException('User not found');
+            $userEntity = $this->userRepository->findByToken($token);
+            if (!$userEntity) {
+                throw new AuthenticationException('Unauthorized');
             }
-
-            return $this->userRepository->toEntity($user);
+            return $userEntity;
         } catch (TokenExpiredException $e) {
             throw new AuthenticationException('Token expired');
         } catch (\Exception $e) {

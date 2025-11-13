@@ -13,23 +13,24 @@ class UpdateProfileUseCase
     public function __construct(
         private UserRepositoryInterface $userRepository
     ) {}
-
-    public function __invoke(array $data, ?UploadedFile $avatar = null): UserEntity
+    public function __invoke(UserEntity $dataEntity, ?UploadedFile $avatar = null): UserEntity
     {
-        $user = JWTAuth::user();
+        $user = JWTAuth::user(); 
 
         $updateData = [];
-        if (isset($data['name'])) $updateData['name'] = $data['name'];
-        if (isset($data['phone'])) $updateData['phone'] = $data['phone'];
-        if (isset($data['address'])) $updateData['address'] = $data['address'];
+        if ($dataEntity->name !== $user->name) $updateData['name'] = $dataEntity->name;
+        if ($dataEntity->phone !== $user->phone) $updateData['phone'] = $dataEntity->phone;
+        if ($dataEntity->address !== $user->address) $updateData['address'] = $dataEntity->address;
 
         if ($avatar) {
-            $url = CloudinaryHelper::upload($avatar, 'avatars');
-            $updateData['image'] = $url;
+            $updateData['image'] = CloudinaryHelper::upload($avatar, 'avatars');
         }
 
-        $this->userRepository->update($user, $updateData);
+        if (!empty($updateData)) {
+            $dataEntity = $this->userRepository->update($dataEntity, $updateData);
+        }
 
-        return $this->userRepository->toEntity($user->fresh());
+        return $dataEntity;
     }
+
 }
