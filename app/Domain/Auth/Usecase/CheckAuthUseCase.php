@@ -18,9 +18,11 @@ class CheckAuthUseCase
     {
         try {
             $userEntity = $this->userRepository->findByToken($token);
+
             if (!$userEntity) {
-                throw new AuthenticationException('Unauthorized');
+                throw new AuthenticationException('User not found');
             }
+
             return $userEntity;
         } catch (TokenExpiredException $e) {
             throw new AuthenticationException('Token expired');

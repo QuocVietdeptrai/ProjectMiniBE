@@ -10,35 +10,34 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class DbUserInfrastructure implements UserRepositoryInterface
 {
-    public function findByEmail(string $email): ?UserEntity
-    {
-        $model = User::where('email', $email)->first();
-        return $model ? $this->toEntity($model) : null;
-    }
-
+    //Trả về model User 
     public function findModelByEmail(string $email): ?User
     {
         return User::where('email', $email)->first();
     }
 
+    //Dựa vào token để tìm UserEntity
     public function findByToken(string $token): ?UserEntity
     {
         $user = JWTAuth::setToken($token)->authenticate();
         return $user ? $this->toEntity($user) : null;
     }
 
+    //Dựa vào model User để tạo token
     public function generateToken(User $userModel): string
     {
         return JWTAuth::fromUser($userModel);
     }
 
 
+    //Tạo mới user từ UserEntity
     public function create(UserEntity $entity): UserEntity
     {
         $model = User::create($entity->toArray());
         return $this->toEntity($model);
     }
 
+    //Cập nhật mật khẩu user lúc đã đăng nhập
     public function updatePassword(int $id, string $password): bool
     {
         return User::where('id', $id)->update([
@@ -47,6 +46,7 @@ class DbUserInfrastructure implements UserRepositoryInterface
     }
 
 
+    //Lưu thời gian đăng nhập cuối cùng
     public function saveLastLogin(UserEntity $userEntity): bool
     {
         $model = User::find($userEntity->id); 
@@ -58,12 +58,14 @@ class DbUserInfrastructure implements UserRepositoryInterface
 
 
 
-
+    //Tìm UserEntity theo id
     public function find(int $id): ?UserEntity
     {
         $model = User::find($id);
         return $model ? $this->toEntity($model) : null;
     }
+
+    //Cập nhật thông tin user
     public function update(UserEntity $entity, array $fieldsToUpdate): UserEntity
     {
         $userModel = User::find($entity->id);
@@ -76,6 +78,7 @@ class DbUserInfrastructure implements UserRepositoryInterface
         return $this->toEntity($userModel->fresh());
     }
 
+    //Cập nhật OTP cho user
     public function updateOtp(string $email, string $otp, int $expiryMinutes = 5): bool
     {
         $user = User::where('email', $email)->first();
@@ -86,6 +89,7 @@ class DbUserInfrastructure implements UserRepositoryInterface
         return $user->save();
     }
 
+    //Tìm UserEntity theo OTP
     public function findByOtp(string $otp): ?UserEntity
     {
         $user = User::where('otp', $otp)
@@ -96,6 +100,7 @@ class DbUserInfrastructure implements UserRepositoryInterface
 
 
 
+    //Chuyển từ model User sang UserEntity
     public function toEntity(User $user): UserEntity
     {
         return new UserEntity(

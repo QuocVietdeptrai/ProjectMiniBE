@@ -24,7 +24,7 @@ public function __invoke(LoginRequest $request): AuthEntity
     }
 
     $token = $this->userRepository->generateToken($userModel);
-    $userEntity = $this->userRepository->findByEmail($request->email);
+    $userEntity = $this->userRepository->toEntity($userModel);
     $this->userRepository->saveLastLogin($userEntity);
 
     return new AuthEntity(

@@ -18,7 +18,6 @@ class ResetPasswordUseCase
             return ['success' => false, 'message' => 'Email không tồn tại!'];
         }
 
-        // Chỉ update password
         $this->userRepository->updatePassword($user->id, Hash::make($password));
 
         return ['success' => true, 'message' => 'Đặt lại mật khẩu thành công!'];

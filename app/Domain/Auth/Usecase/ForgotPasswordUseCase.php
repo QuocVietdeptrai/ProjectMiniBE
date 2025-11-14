@@ -25,7 +25,6 @@ class ForgotPasswordUseCase
             return ['success' => false, 'message' => 'Không thể cập nhật OTP!'];
         }
 
-        // 4️⃣ Gửi mail
         $subject = "Mã OTP khôi phục mật khẩu";
         $content = "<p>Xin chào <b>{$userEntity->name}</b>,</p>
                     <p>Mã OTP của bạn là: <b>{$otp}</b></p>

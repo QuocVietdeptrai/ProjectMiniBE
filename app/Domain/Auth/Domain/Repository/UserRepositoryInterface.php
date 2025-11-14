@@ -7,8 +7,6 @@ use App\Models\User;
 
 interface UserRepositoryInterface
 {
-    // Trả entity
-    public function findByEmail(string $email): ?UserEntity;
     public function findModelByEmail(string $email): ?User;
     public function create(UserEntity $entity): UserEntity;
     public function update(UserEntity $entity, array $fieldsToUpdate): UserEntity;

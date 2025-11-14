@@ -14,7 +14,6 @@ class UpdatePasswordUseCase
 
     public function __invoke(string $password): array
     {
-        // Lấy user hiện tại từ JWT
         $user = JWTAuth::user();
         if (!$user) {
             return ['success' => false, 'message' => 'Người dùng không tồn tại'];
