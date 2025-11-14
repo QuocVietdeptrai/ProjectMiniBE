@@ -15,21 +15,6 @@ class DbUserInfrastructure implements UserRepositoryInterface
     {
         return User::where('email', $email)->first();
     }
-
-    //Dựa vào token để tìm UserEntity
-    public function findByToken(string $token): ?UserEntity
-    {
-        $user = JWTAuth::setToken($token)->authenticate();
-        return $user ? $this->toEntity($user) : null;
-    }
-
-    //Dựa vào model User để tạo token
-    public function generateToken(User $userModel): string
-    {
-        return JWTAuth::fromUser($userModel);
-    }
-
-
     //Tạo mới user từ UserEntity
     public function create(UserEntity $entity): UserEntity
     {
@@ -45,7 +30,6 @@ class DbUserInfrastructure implements UserRepositoryInterface
         ]);
     }
 
-
     //Lưu thời gian đăng nhập cuối cùng
     public function saveLastLogin(UserEntity $userEntity): bool
     {
@@ -55,8 +39,6 @@ class DbUserInfrastructure implements UserRepositoryInterface
         $model->last_login_at = Carbon::now();
         return $model->save();
     }
-
-
 
     //Tìm UserEntity theo id
     public function find(int $id): ?UserEntity
@@ -77,29 +59,6 @@ class DbUserInfrastructure implements UserRepositoryInterface
 
         return $this->toEntity($userModel->fresh());
     }
-
-    //Cập nhật OTP cho user
-    public function updateOtp(string $email, string $otp, int $expiryMinutes = 5): bool
-    {
-        $user = User::where('email', $email)->first();
-        if (!$user) return false;
-
-        $user->otp = $otp;
-        $user->	otp_expires_at = now()->addMinutes($expiryMinutes);
-        return $user->save();
-    }
-
-    //Tìm UserEntity theo OTP
-    public function findByOtp(string $otp): ?UserEntity
-    {
-        $user = User::where('otp', $otp)
-                    ->where('otp_expires_at', '>', now())
-                    ->first();
-        return $user ? $this->toEntity($user) : null;
-    }
-
-
-
     //Chuyển từ model User sang UserEntity
     public function toEntity(User $user): UserEntity
     {

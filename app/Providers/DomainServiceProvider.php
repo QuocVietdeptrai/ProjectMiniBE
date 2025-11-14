@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Domain\Auth\Domain\Repository\UserRepositoryInterface;
+use App\Domain\Auth\Domain\Service\AuthTokenServiceInterface;
+use App\Domain\Auth\Domain\Service\OtpServiceInterface;
 use App\Domain\Auth\Infrastructure\DbUserInfrastructure;
+use App\Domain\Auth\Infrastructure\JwtAuthTokenService;
+use App\Domain\Auth\Infrastructure\OtpService;
 use App\Domain\Order\Domain\Repository\OrderRepository;
 use App\Domain\Order\Infrastructure\DbOrderInfrastructure;
 use App\Domain\Product\Domain\Repository\ProductRepository;
@@ -33,6 +37,16 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class, 
             DbUserInfrastructure::class
+        );
+        $this->app->bind(
+            AuthTokenServiceInterface::class,
+            JwtAuthTokenService::class
+        );
+
+        // Bind OtpService
+        $this->app->bind(
+            OtpServiceInterface::class,
+            OtpService::class
         );
     }
 }

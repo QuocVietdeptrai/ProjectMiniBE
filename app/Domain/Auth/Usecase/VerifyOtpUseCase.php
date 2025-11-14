@@ -2,17 +2,17 @@
 
 namespace App\Domain\Auth\UseCase;
 
-use App\Domain\Auth\Domain\Repository\UserRepositoryInterface;
+use App\Domain\Auth\Domain\Service\OtpServiceInterface;
 
 class VerifyOtpUseCase
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
+        private OtpServiceInterface $otpService
     ) {}
 
     public function __invoke(string $otp): array
     {
-        $user = $this->userRepository->findByOtp($otp);
+        $user = $this->otpService->findByOtp($otp);
         if (!$user) {
             return ['success' => false, 'message' => 'OTP không hợp lệ hoặc đã hết hạn!'];
         }

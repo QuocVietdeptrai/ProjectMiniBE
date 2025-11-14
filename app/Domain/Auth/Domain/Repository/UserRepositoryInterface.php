@@ -13,9 +13,5 @@ interface UserRepositoryInterface
     public function updatePassword(int $id, string $password): bool;
     public function saveLastLogin(UserEntity $user): bool;
     public function find(int $id): ?UserEntity;
-    public function updateOtp(string $email, string $otp, int $expiryMinutes = 5): bool;
-    public function findByOtp(string $otp): ?UserEntity;
-    public function findByToken(string $token): ?UserEntity;
-    public function generateToken(User $userModel): string;
     public function toEntity(User $user): UserEntity;
 }
