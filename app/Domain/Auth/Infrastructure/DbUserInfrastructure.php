@@ -48,16 +48,20 @@ class DbUserInfrastructure implements UserRepositoryInterface
     }
 
     //Cập nhật thông tin user
-    public function update(UserEntity $entity, array $fieldsToUpdate): UserEntity
+    public function update(int $id, UserEntity $entity): ?UserEntity
     {
-        $userModel = User::find($entity->id);
-        if (!$userModel) {
-            throw new \Exception("User not found");
-        }
+        $model = User::find($id);
+        if (!$model) return null;
 
-        $userModel->update($fieldsToUpdate);
+        $model->update([
+            'name' => $entity->name,
+            'email' => $entity->email,
+            'phone' => $entity->phone,
+            'address' => $entity->address,
+            'image' => $entity->image,
+        ]);
 
-        return $this->toEntity($userModel->fresh());
+        return $this->toEntity($model);
     }
     //Chuyển từ model User sang UserEntity
     public function toEntity(User $user): UserEntity

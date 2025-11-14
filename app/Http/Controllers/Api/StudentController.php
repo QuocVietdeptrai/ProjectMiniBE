@@ -9,10 +9,11 @@ use App\Models\Student;
 use App\Helpers\CloudinaryHelper;
 use Exception;
 use App\Enums\StatusCode;
+use App\Http\Actions\Api\Student\DestroyAction;
 use App\Http\Actions\Api\Student\ShowAction;
 use App\Http\Actions\Api\Student\IndexAction;
+use App\Http\Actions\Api\Student\StoreAction;
 use App\Http\Actions\Api\Student\UpdateAction;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -23,35 +24,9 @@ class StudentController extends Controller
     }
 
     // Thêm sinh viên
-    public function store(StoreStudentRequest $request)
+    public function store(StoreAction $action, StoreStudentRequest $request)
     {
-        try {
-            $avatarUrl = null;
-            if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
-                $avatarUrl = CloudinaryHelper::upload($request->file('avatar'), 'students');
-            }
-
-            $student = Student::create([
-                'full_name' => $request->full_name,
-                'dob' => $request->dob,
-                'gender' => $request->gender,
-                'email' => $request->email,
-                'phone' => $request->phone ?? null,
-                'class' => $request->class ?? null,
-                'avatar' => $avatarUrl,
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Thêm sinh viên thành công',
-                'data' => $student
-            ],  StatusCode::CREATED);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Có lỗi xảy ra!'
-            ], StatusCode::INTERNAL_ERR);
-        }
+        return $action($request);
     }
 
     // Xem chi tiết sinh viên
@@ -66,21 +41,8 @@ class StudentController extends Controller
     }
 
     // Xóa sinh viên
-    public function destroy($id)
+    public function destroy(DestroyAction $action, int $id)
     {
-        try {
-            $student = Student::findOrFail($id);
-            $student->delete();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Xóa sinh viên thành công',
-            ], StatusCode::OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Sinh viên không tồn tại',
-            ], StatusCode::NOT_FOUND);
-        }
+        return $action($id);
     }
 }

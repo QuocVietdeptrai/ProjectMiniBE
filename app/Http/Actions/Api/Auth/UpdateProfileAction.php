@@ -3,42 +3,42 @@
 namespace App\Http\Actions\Api\Auth;
 
 use App\Domain\Auth\UseCase\UpdateProfileUseCase;
-use App\Domain\Auth\Domain\Entity\UserEntity;
 use App\Http\Requests\Auth\UpdateProfileRequest;
-use App\Http\Resources\Api\Auth\UserResource;
 use App\Http\Responders\Api\Auth\UserResponder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Enums\StatusCode;
 
 class UpdateProfileAction
 {
     public function __construct(
         private UpdateProfileUseCase $useCase,
-        private UserResponder $responder
-    ) {
-    }
+        private UserResponder $successResponder
+    ) {}
 
-    public function __invoke(UpdateProfileRequest $request): UserResource
+    public function __invoke(UpdateProfileRequest $request): JsonResponse
     {
-        // Lấy user hiện tại để lấy id, email, role
-        $currentUser = JWTAuth::user();
+        try {
+            $user = JWTAuth::user();
+            if (!$user) {
+                return response()->json(['message' => 'Unauthorized'], StatusCode::UNAUTHORIZED);
+            }
 
-        // Tạo entity từ request + thông tin hiện tại
-        $userEntity = new UserEntity(
-            id: $currentUser->id,
-            name: $request->input('name', $currentUser->name),
-            email: $currentUser->email,
-            role: $currentUser->role,
-            phone: $request->input('phone', $currentUser->phone),
-            address: $request->input('address', $currentUser->address),
-            image: $currentUser->image,
-            created_at: $currentUser->created_at,
-            last_login_at: $currentUser->last_login_at
-        );
+            $updatedUser = ($this->useCase)(
+                $user->id,
+                $request->only(['name', 'email', 'phone', 'address']),
+                $request->file('image')
+            );
 
-        // Gọi use case
-        $updatedEntity = ($this->useCase)($userEntity, $request->file('avatar'));
+            return ($this->successResponder)($updatedUser)->response(); 
 
-        // Trả về resource
-        return ($this->responder)($updatedEntity);
+        } catch (\Exception $e) {
+            Log::error('Lỗi cập nhật Profile: ' . $e->getMessage());
+            return response()->json(
+                ['message' => 'Đã xảy ra lỗi khi cập nhật Profile'],
+                StatusCode::INTERNAL_ERR
+            );
+        }
     }
 }

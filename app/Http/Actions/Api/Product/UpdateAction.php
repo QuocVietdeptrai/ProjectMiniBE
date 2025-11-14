@@ -5,7 +5,6 @@ namespace App\Http\Actions\Api\Product;
 use App\Domain\Product\UseCase\UpdateProductUseCase;
 use App\Enums\StatusCode;
 use App\Http\Responders\Api\Product\UpdateProductResponder;
-use App\Http\Responders\Api\Product\ErrorResponder;
 use App\Http\Requests\Product\UpdateProductRequest;
 
 use Illuminate\Http\JsonResponse;
@@ -34,8 +33,10 @@ class UpdateAction
             return ($this->successResponder)($product);
         } catch (\Exception $e) {
             Log::info('Lỗi cập nhật sản phẩm: ' . $e->getMessage());
-            return response()->json(['message' => 'Đã xảy ra lỗi khi cập nhật sản phẩm'], StatusCode::INTERNAL_ERR);
-            
+            return response()->json(
+                ['message' => 'Đã xảy ra lỗi khi cập nhật sản phẩm'],
+                StatusCode::INTERNAL_ERR
+            );
         }
     }
 }

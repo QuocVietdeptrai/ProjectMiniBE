@@ -9,6 +9,7 @@ use App\Http\Actions\Api\Product\{
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -34,6 +35,8 @@ class ProductController extends Controller
 
     public function update(UpdateAction $action, UpdateProductRequest $request, int $id)
     {
+        Log::info('Request data: ' . json_encode($request->all()));
+
         return $action($request, $id);
     }
 

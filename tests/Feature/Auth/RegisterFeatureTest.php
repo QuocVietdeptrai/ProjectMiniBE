@@ -8,7 +8,6 @@ use App\Models\User;
 
 class RegisterFeatureTest extends TestCase
 {
-    use RefreshDatabase;
 
     private array $userData = [
         'name' => 'Test User',
