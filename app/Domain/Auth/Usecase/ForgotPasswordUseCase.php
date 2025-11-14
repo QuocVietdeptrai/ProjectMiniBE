@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\UseCase;
+namespace App\Domain\Auth\Usecase;
 
 use App\Domain\Auth\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Auth\Domain\Service\OtpServiceInterface;

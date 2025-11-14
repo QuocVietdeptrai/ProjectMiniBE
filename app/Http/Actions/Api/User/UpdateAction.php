@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Http\Actions\Api\Product;
+namespace App\Http\Actions\Api\User;
 
-use App\Domain\Product\UseCase\UpdateProductUseCase;
+use App\Domain\User\Usecase\UpdateUserUseCase;
 use App\Enums\StatusCode;
-use App\Http\Responders\Api\Product\UpdateProductResponder;
-use App\Http\Requests\Product\UpdateProductRequest;
-
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Responders\Api\User\UpdateUserResponder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class UpdateAction
 {
     public function __construct(
-        private UpdateProductUseCase $useCase,
-        private UpdateProductResponder $successResponder
+        private UpdateUserUseCase $useCase,
+        private UpdateUserResponder $successResponder
     ) {}
 
-    public function __invoke(UpdateProductRequest $request, int $id): JsonResponse
+    public function __invoke(UpdateUserRequest $request, int $id): JsonResponse
     {
         try {
             $product = ($this->useCase)(
                 $id,
-                $request->only(['name', 'price', 'description', 'quantity']),
+                $request->only(['name', 'email', 'phone', 'address','password','role','status']),
                 $request->file('image')
             );
 

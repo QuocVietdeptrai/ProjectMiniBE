@@ -4,6 +4,7 @@
 namespace App\Http\Actions\Api\Product;
 
 use App\Domain\Product\UseCase\DeleteProductUseCase;
+use App\Enums\StatusCode;
 use App\Http\Responders\Api\Product\DestroyProductResponder;
 use App\Http\Responders\Api\Product\ErrorResponder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,7 +23,7 @@ class DestroyAction
             ($this->useCase)($id);
             return ($this->successResponder)();
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+            return response()->json(['message' => 'Sản phẩm không tồn tại'], StatusCode::NOT_FOUND);
         }
     }
 }

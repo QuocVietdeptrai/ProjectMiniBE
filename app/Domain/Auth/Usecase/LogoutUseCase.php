@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\UseCase;
+namespace App\Domain\Auth\Usecase;
 
 use Tymon\JWTAuth\Facades\JWTAuth;
 

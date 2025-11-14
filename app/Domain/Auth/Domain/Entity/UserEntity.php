@@ -34,6 +34,6 @@ class UserEntity
             'last_login_at' => $this->last_login_at,
             'password'      => $this->password,
             'status'        => $this->status,
-        ];
+        ];  
     }
 }

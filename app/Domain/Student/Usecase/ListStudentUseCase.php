@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Domain\Student\UseCase;
+namespace App\Domain\Student\Usecase;
 
 use App\Domain\Student\Domain\Repository\StudentRepository;
 use Illuminate\Pagination\LengthAwarePaginator;

@@ -11,66 +11,29 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Enums\StatusCode;
+use App\Http\Actions\Api\User\DestroyAction;
+use App\Http\Actions\Api\User\IndexAction;
+use App\Http\Actions\Api\User\ShowAction;
+use App\Http\Actions\Api\User\StoreAction;
 
 class UserController extends Controller
 {
     // Lấy danh sách người dùng
-    public function index(Request $request)
+    public function index(IndexAction $action, Request $request)
     {
-        $query = User::query();
-
-        if ($request->has('search')) {
-            $query->where('name', 'like', "%{$request->search}%");
-        }
-
-        $users = $query->orderBy('created_at', 'desc')->paginate(5);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $users
-        ], StatusCode::OK);
+        return $action($request);
     }
 
     // Tạo người dùng mới
-    public function store(StoreUserRequest $request)
+    public function store(StoreAction $action, StoreUserRequest $request)
     {
-        $imagePath = null;
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $imagePath = CloudinaryHelper::upload($request->file('image'), 'users');
-        }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'image' => $imagePath,
-            'status' => $request->status,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $user
-        ], StatusCode::CREATED);
+        return $action($request);
     }
 
     // Xem chi tiết người dùng
-    public function show($id)
+    public function show(ShowAction $action, int $id)
     {
-        try {
-            $user = User::findOrFail($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $user
-            ], StatusCode::OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Người dùng không tồn tại',
-            ], StatusCode::NOT_FOUND);
-        }
+        return $action($id);
     }
 
     // Cập nhật người dùng
@@ -107,20 +70,8 @@ class UserController extends Controller
     }
 
     // Xóa người dùng
-    public function destroy($id)
+    public function destroy(DestroyAction $action, int $id)
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Xóa người dùng thành công',
-            ], StatusCode::OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Người dùng không tồn tại',
-            ], StatusCode::NOT_FOUND);
-        }
+        return $action($id);
     }
 }

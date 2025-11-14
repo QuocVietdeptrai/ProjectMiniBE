@@ -9,16 +9,17 @@ use App\Http\Actions\Api\Product\{
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    public function index(IndexAction $action, \Illuminate\Http\Request $request)
+    public function index(IndexAction $action, Request $request)
     {
         return $action($request);
     }
 
-    public function indexOrder(IndexOrderAction $action, \Illuminate\Http\Request $request)
+    public function indexOrder(IndexOrderAction $action, Request $request)
     {
         return $action($request);
     }

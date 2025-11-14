@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Product\UseCase;
+namespace App\Domain\Product\Usecase;
 
 use App\Domain\Product\Domain\Repository\ProductRepository;
 

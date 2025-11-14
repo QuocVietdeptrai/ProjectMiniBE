@@ -14,6 +14,9 @@ use App\Domain\Product\Domain\Repository\ProductRepository;
 use App\Domain\Product\Infrastructure\DbProductInfrastructure;
 use App\Domain\Student\Domain\Repository\StudentRepository;
 use App\Domain\Student\Infrastructure\DbStudentInfrastructure;
+use App\Domain\User\Domain\Repository\UserRepository;
+use App\Domain\User\Infrastructure\DbUserInfrastructure as DbUserInfrastructureUserNew;
+
 use Illuminate\Support\ServiceProvider;
 
 class DomainServiceProvider extends ServiceProvider
@@ -47,6 +50,10 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(
             OtpServiceInterface::class,
             OtpService::class
+        );
+        $this->app->bind(
+            UserRepository::class,
+            DbUserInfrastructureUserNew::class
         );
     }
 }
