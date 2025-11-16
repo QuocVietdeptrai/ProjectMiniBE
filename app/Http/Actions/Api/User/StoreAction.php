@@ -3,6 +3,7 @@
 
 namespace App\Http\Actions\Api\User;
 
+use App\Domain\User\Exception\EmailExistsException;
 use App\Domain\User\Usecase\CreateUserUseCase;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Responders\Api\User\StoreUserResponder;
@@ -26,7 +27,7 @@ class StoreAction
             );
 
             return ($this->successResponder)($product);
-        } catch (Exception $e) {
+        } catch (EmailExistsException $e) {
             Log::error('Lỗi tạo người dùng: ' . $e->getMessage());
             return response()->json(['message' => 'Đã xảy ra lỗi khi tạo sản phẩm'], 500);
         }

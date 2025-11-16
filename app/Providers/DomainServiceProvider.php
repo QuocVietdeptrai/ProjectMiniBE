@@ -8,8 +8,10 @@ use App\Domain\Auth\Domain\Service\OtpServiceInterface;
 use App\Domain\Auth\Infrastructure\DbUserInfrastructure;
 use App\Domain\Auth\Infrastructure\JwtAuthTokenService;
 use App\Domain\Auth\Infrastructure\OtpService;
+use App\Domain\Order\Domain\Repository\OrderItemRepository;
 use App\Domain\Order\Domain\Repository\OrderRepository;
 use App\Domain\Order\Infrastructure\DbOrderInfrastructure;
+use App\Domain\Order\Infrastructure\DbOrderItemInfrastructure;
 use App\Domain\Product\Domain\Repository\ProductRepository;
 use App\Domain\Product\Infrastructure\DbProductInfrastructure;
 use App\Domain\Student\Domain\Repository\StudentRepository;
@@ -36,6 +38,10 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(
             OrderRepository::class,
             DbOrderInfrastructure::class
+        );
+        $this->app->bind(
+            OrderItemRepository::class,
+            DbOrderItemInfrastructure::class
         );
         $this->app->bind(
             UserRepositoryInterface::class, 

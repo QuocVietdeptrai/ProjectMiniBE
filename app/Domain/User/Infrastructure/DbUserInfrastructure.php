@@ -4,6 +4,7 @@ namespace App\Domain\User\Infrastructure;
 
 use App\Domain\Auth\Domain\Entity\UserEntity;
 use App\Domain\User\Domain\Repository\UserRepository;
+use App\Domain\User\Exception\EmailExistsException;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -55,7 +56,7 @@ class DbUserInfrastructure implements UserRepository
     public function create(UserEntity $entity): UserEntity
     {
         if (User::where('email', $entity->email)->exists()) {
-            throw new \Exception("Email '{$entity->email}' đã tồn tại.");
+            throw new EmailExistsException();
         }
         $model = User::create([
             'name' => $entity->name,
@@ -79,6 +80,10 @@ class DbUserInfrastructure implements UserRepository
     {
         $model = User::find($id);
         if(!$model) return null;
+
+        if (User::where('email', $entity->email)->exists()) {
+            throw new \Exception("Email '{$entity->email}' đã tồn tại.");
+        }
 
         $model->update([
             'name' => $entity->name,

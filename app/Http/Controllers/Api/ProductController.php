@@ -36,8 +36,6 @@ class ProductController extends Controller
 
     public function update(UpdateAction $action, UpdateProductRequest $request, int $id)
     {
-        Log::info('Request data: ' . json_encode($request->all()));
-
         return $action($request, $id);
     }
 
