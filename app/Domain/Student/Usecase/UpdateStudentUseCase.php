@@ -4,6 +4,7 @@ namespace App\Domain\Student\Usecase;
 
 use App\Domain\Student\Domain\Entity\StudentEntity;
 use App\Domain\Student\Domain\Repository\StudentRepository;
+use App\Domain\Student\Exception\StudentNotFoundException;
 use App\Helpers\CloudinaryHelper;
 
 class UpdateStudentUseCase{
@@ -12,6 +13,9 @@ class UpdateStudentUseCase{
     public function __invoke(int $id, array $data, $imageFile = null): ?StudentEntity
     {
         $student = $this->repo->find($id);
+        if(!$student){
+            throw new StudentNotFoundException();
+        }
         $updateData = [];
 
         if(array_key_exists('full_name',$data)) $updateData['full_name'] = $data['full_name'];

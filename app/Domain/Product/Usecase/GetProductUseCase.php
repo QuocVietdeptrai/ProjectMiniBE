@@ -4,6 +4,7 @@ namespace App\Domain\Product\Usecase;
 
 use App\Domain\Product\Domain\Repository\ProductRepository;
 use App\Domain\Product\Domain\Entity\ProductEntity;
+use App\Domain\Product\Exception\ProductNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class GetProductUseCase
@@ -14,7 +15,7 @@ class GetProductUseCase
     {
         $product = $this->repo->find($id);
         if (!$product) {
-            throw new ModelNotFoundException('Sản phẩm không tồn tại');
+            throw new ProductNotFoundException();
         }
         return $product;
     }

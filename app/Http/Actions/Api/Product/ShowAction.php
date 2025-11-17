@@ -2,6 +2,7 @@
 
 namespace App\Http\Actions\Api\Product;
 
+use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\UseCase\GetProductUseCase;
 use App\Enums\StatusCode;
 use App\Http\Responders\Api\Product\ShowProductResponder;
@@ -21,8 +22,12 @@ class ShowAction
         try {
             $product = ($this->useCase)($id);
             return ($this->successResponder)($product);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Sản phẩm không tồn tại'], StatusCode::NOT_FOUND);
+        } catch (ProductNotFoundException $e) {
+             return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ], $e->getCode());
         }
     }
 }

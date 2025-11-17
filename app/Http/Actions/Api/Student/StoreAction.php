@@ -3,6 +3,7 @@
 
 namespace App\Http\Actions\Api\Student;
 use App\Domain\Student\UseCase\CreateStudentUseCase;
+use App\Enums\StatusCode;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Responders\Api\Student\StoreStudentResponder;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +28,7 @@ class StoreAction
             return ($this->successResponder)($product);
         } catch (Exception $e) {
             Log::error('Lỗi tạo sản phẩm: ' . $e->getMessage());
-            return response()->json(['message' => 'Đã xảy ra lỗi khi tạo sản phẩm'], 500);
+            return response()->json(['message' => 'Đã xảy ra lỗi khi tạo học sinh'], StatusCode::INTERNAL_ERR);
         }
     }
 }

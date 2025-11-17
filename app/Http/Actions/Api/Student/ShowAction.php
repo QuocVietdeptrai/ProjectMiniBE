@@ -21,7 +21,11 @@ class ShowAction
             $student = ($this->useCase)($id);
             return ($this->responder)($student);
         } catch (StudentNotFoundException $e) {
-            return response()->json(['message' => 'Sinh viên không tồn tại'],StatusCode::NOT_FOUND);
+             return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ], $e->getCode());
         }
     }
 }

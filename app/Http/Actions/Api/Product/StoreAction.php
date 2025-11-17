@@ -4,6 +4,7 @@
 namespace App\Http\Actions\Api\Product;
 
 use App\Domain\Product\UseCase\CreateProductUseCase;
+use App\Enums\StatusCode;
 use App\Http\Responders\Api\Product\StoreProductResponder;
 use App\Http\Responders\Api\Product\ErrorResponder;
 use App\Http\Requests\Product\StoreProductRequest;
@@ -29,7 +30,7 @@ class StoreAction
             return ($this->successResponder)($product);
         } catch (Exception $e) {
             Log::error('Lỗi tạo sản phẩm: ' . $e->getMessage());
-            return response()->json(['message' => 'Đã xảy ra lỗi khi tạo sản phẩm'], 500);
+            return response()->json(['message' => 'Đã xảy ra lỗi khi tạo sản phẩm'], StatusCode::INTERNAL_ERR);
         }
     }
 }

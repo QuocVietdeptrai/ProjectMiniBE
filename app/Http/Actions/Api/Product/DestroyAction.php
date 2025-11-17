@@ -3,6 +3,7 @@
 
 namespace App\Http\Actions\Api\Product;
 
+use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Domain\Product\UseCase\DeleteProductUseCase;
 use App\Enums\StatusCode;
 use App\Http\Responders\Api\Product\DestroyProductResponder;
@@ -22,8 +23,12 @@ class DestroyAction
         try {
             ($this->useCase)($id);
             return ($this->successResponder)();
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Sản phẩm không tồn tại'], StatusCode::NOT_FOUND);
+        } catch (ProductNotFoundException $e) {
+             return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ], $e->getCode());
         }
     }
 }

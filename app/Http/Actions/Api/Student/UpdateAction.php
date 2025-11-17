@@ -26,12 +26,7 @@ class UpdateAction
                 $request->only(['full_name','dob','gender','email','phone','class']),
                 $request->file('avatar')
             );
-
-            if(!$student){
-                throw new StudentNotFoundException('Học sinh không tồn tại !',StatusCode::NOT_FOUND);
-            }
-            //Tôi muốn in log khi cập nhật thành công
-            Log::info('Cập nhật sinh viên thành công: ID ' . $id);
+            // Log::info('Cập nhật sinh viên thành công: ID ' . $id);
             return ($this->responder)($student);
         } catch (Exception $e) {
             Log::info('Lỗi cập nhật sản phẩm: ' . $e->getMessage());

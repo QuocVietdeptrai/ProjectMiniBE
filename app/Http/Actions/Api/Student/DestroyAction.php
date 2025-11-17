@@ -2,6 +2,7 @@
 
 namespace App\Http\Actions\Api\Student;
 
+use App\Domain\Student\Exception\StudentNotFoundException;
 use App\Domain\Student\UseCase\DeleteStudentUseCase;
 use App\Http\Responders\Api\Student\DestroyStudentResponder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,8 +20,12 @@ class DestroyAction
         try {
             ($this->useCase)($id);
             return ($this->successResponder)();
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Sản phẩm không tồn tại'], 404);
+        } catch (StudentNotFoundException $e) {
+             return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ], $e->getCode());
         }
     }
 }

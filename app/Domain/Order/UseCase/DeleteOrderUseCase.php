@@ -3,6 +3,7 @@
 namespace App\Domain\Order\UseCase;
 
 use App\Domain\Order\Domain\Repository\OrderRepository;
+use App\Domain\Order\Exception\OrderNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DeleteOrderUseCase
@@ -12,7 +13,7 @@ class DeleteOrderUseCase
     public function execute(int $id): bool
     {
         if (!$this->repository->findById($id)) {
-            throw new ModelNotFoundException('Đơn hàng không tồn tại');
+            throw new OrderNotFoundException();
         }
         return $this->repository->delete($id);
     }

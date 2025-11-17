@@ -4,6 +4,7 @@ namespace App\Domain\Product\Usecase;
 
 use App\Domain\Product\Domain\Entity\ProductEntity;
 use App\Domain\Product\Domain\Repository\ProductRepository;
+use App\Domain\Product\Exception\ProductNotFoundException;
 use App\Helpers\CloudinaryHelper;
 class UpdateProductUseCase
 {
@@ -12,6 +13,9 @@ class UpdateProductUseCase
     public function __invoke(int $id, array $data, $imageFile = null): ?ProductEntity
     {
         $product = $this->repo->find($id);
+        if (!$product) {
+            throw new ProductNotFoundException();
+        }
         $updateData = [];
 
         if (array_key_exists('name', $data)) $updateData['name'] = $data['name'];

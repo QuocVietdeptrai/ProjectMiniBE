@@ -13,7 +13,7 @@ class GetStudentUseCase
     {
         $student = $this->repository->find($id);
         if(!$student){
-            throw new StudentNotFoundException('Học sinh không tồn tại!');
+            throw new StudentNotFoundException();
         }
         return $student;
     }

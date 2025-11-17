@@ -9,6 +9,8 @@ use App\Domain\Order\Domain\Repository\OrderRepository;
 use App\Models\Product;
 use App\Models\Student;
 use App\Domain\Order\Domain\Entity\OrderItemEntity;
+use App\Domain\Order\Exception\OrderNotFoundException;
+use App\Domain\Order\Exception\StockException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UpdateOrderUseCase
@@ -22,7 +24,7 @@ class UpdateOrderUseCase
     {
         $order = $this->orderRepo->findById($id);
         if (!$order) {
-            throw new ModelNotFoundException('Đơn hàng không tồn tại');
+            throw new OrderNotFoundException();
         }
         $oldStatus = $order->status;
         $student = Student::updateOrCreate(
@@ -47,7 +49,7 @@ class UpdateOrderUseCase
             foreach ($data['products'] as $p) {
                 $product = Product::find($p['id']);
                 if (!$product || $product->quantity < $p['quantity']) {
-                    throw new \Exception("Sản phẩm '{$product?->name}' không đủ số lượng trong kho!");
+                    throw new StockException();
                 }
                 $product->decrement('quantity', $p['quantity']);
             }
@@ -59,7 +61,7 @@ class UpdateOrderUseCase
             $oldItems = $this->itemRepo->getByOrderId($id);
             foreach ($oldItems as $item) {
                 /** @var OrderItemEntity $item */
-                $product = Product::find((int)$item->productId);
+                $product = Product::find((int)$item->product_id);
                 if ($product) {
                     $product->increment('quantity', (int)$item->quantity);
                 }

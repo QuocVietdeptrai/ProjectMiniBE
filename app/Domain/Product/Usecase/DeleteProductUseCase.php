@@ -3,6 +3,7 @@
 namespace App\Domain\Product\Usecase;
 
 use App\Domain\Product\Domain\Repository\ProductRepository;
+use App\Domain\Product\Exception\ProductNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DeleteProductUseCase
@@ -12,7 +13,7 @@ class DeleteProductUseCase
     public function __invoke(int $id): bool
     {
         if (!$this->repo->find($id)) {
-            throw new ModelNotFoundException('Sản phẩm không tồn tại');
+            throw new ProductNotFoundException();
         }
         return $this->repo->delete($id);
     }

@@ -4,6 +4,7 @@ namespace App\Domain\Order\UseCase;
 
 use App\Domain\Order\Domain\Entity\OrderEntity;
 use App\Domain\Order\Domain\Repository\OrderRepository;
+use App\Domain\Order\Exception\OrderNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class GetOrderUseCase
@@ -14,7 +15,7 @@ class GetOrderUseCase
     {
         $order = $this->repository->findById($id);
         if (!$order) {
-            throw new ModelNotFoundException('Đơn hàng không tồn tại');
+            throw new OrderNotFoundException();
         }
         return $order;
     }
