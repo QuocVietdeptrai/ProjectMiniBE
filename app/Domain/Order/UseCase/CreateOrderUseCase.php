@@ -2,6 +2,7 @@
 
 namespace App\Domain\Order\UseCase;
 
+use App\Domain\Auth\Domain\Service\AuthTokenServiceInterface;
 use App\Domain\Order\Domain\Entity\OrderEntity;
 use App\Domain\Order\Domain\Repository\OrderRepository;
 use App\Domain\Order\Domain\Repository\OrderItemRepository;
@@ -12,12 +13,13 @@ class CreateOrderUseCase
 {
     public function __construct(
         protected OrderRepository $orderRepo,
-        protected OrderItemRepository $itemRepo
+        protected OrderItemRepository $itemRepo,
+        protected AuthTokenServiceInterface $authTokenService
     ) {}
 
     public function execute(array $data): OrderEntity
     {
-        $user = JWTAuth::user();
+        $user = $this->authTokenService->user();
 
         $student = Student::firstOrCreate(
             ['phone' => $data['phone']],

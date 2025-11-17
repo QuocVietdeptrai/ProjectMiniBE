@@ -11,43 +11,39 @@ use Illuminate\Support\Collection;
 
 class DbOrderInfrastructure implements OrderRepository
 {
+    //Đếm tổng số đơn hàng
     public function count(): int
     {
         return Order::count();
     }
 
+    //Tìm đơn hàng theo ID
     public function findById(int $id): ?OrderEntity
     {
         $order = Order::with(['items.product', 'student'])->find($id);
         return $order ? $this->toEntity($order) : null;
     }
 
-    public function paginate(array $filters, int $perPage = 5): LengthAwarePaginator
+    //Phân trang danh sách đơn hàng
+    public function paginate(?string $search, int $perPage = 4): LengthAwarePaginator
     {
         $query = Order::query();
 
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('customer_name', 'like', "%{$search}%")
-                  ->orWhere('total', 'like', "%{$search}%")
-                  ->orWhere('payment_method', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%")
-                  ->orWhereDate('created_at', $search);
-            });
+        if ($search) {
+            $query->where('customer_name', 'like', "%{$search}%");
         }
 
-        $query->orderBy('created_at', 'desc');
-
-        return $query->paginate($perPage);
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
+    //Tạo đơn hàng mới
     public function create(array $data): OrderEntity
     {
         $order = Order::create($data);
         return $this->toEntity($order->load('items.product', 'student'));
     }
 
+    //Cập nhật đơn hàng
     public function update(int $id, array $data): OrderEntity
     {
         $order = Order::findOrFail($id);
@@ -55,11 +51,13 @@ class DbOrderInfrastructure implements OrderRepository
         return $this->toEntity($order->load('items.product', 'student'));
     }
 
+    //Xóa đơn hàng
     public function delete(int $id): bool
     {
         return Order::destroy($id) > 0;
     }
 
+    //Chuyển đổi model Order sang entity OrderEntity
     private function toEntity(Order $order): OrderEntity
     {
         $items = $order->items->map(fn($item) => new OrderItemEntity(
@@ -68,8 +66,9 @@ class DbOrderInfrastructure implements OrderRepository
             $item->product_id,
             $item->quantity,
             $item->price,
-            $item->product->name ?? null,
-            $item->product->image ?? null
+            $item->subtotal,
+            $item->created_at?->toDateTimeString(),
+            $item->updated_at?->toDateTimeString()
         ));
 
         return new OrderEntity(

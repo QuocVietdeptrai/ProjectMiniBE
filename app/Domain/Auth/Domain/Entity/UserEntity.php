@@ -23,17 +23,17 @@ class UserEntity
     public function toArray(): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'email'         => $this->email,
-            'role'          => $this->role,
-            'phone'         => $this->phone,
-            'address'       => $this->address,
-            'image'         => $this->image,
-            'created_at'    => $this->created_at,
-            'last_login_at' => $this->last_login_at,
-            'password'      => $this->password,
-            'status'        => $this->status,
+            'id'=> $this->id,
+            'name'=> $this->name,
+            'email'=> $this->email,
+            'role'=> $this->role,
+            'phone'=> $this->phone,
+            'address'=> $this->address,
+            'image'=> $this->image,
+            'created_at'=> $this->created_at,
+            'last_login_at'=> $this->last_login_at,
+            'password'=> $this->password,
+            'status'=> $this->status,
         ];  
     }
 }

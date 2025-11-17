@@ -9,10 +9,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DbStudentInfrastructure implements StudentRepository
 {
+    //Đếm tổng số học sinh
     public function count(): int
     {
         return Student::count();
     }
+
+    //Phân trang học sinh
     public function paginate(?string $search, int $perPage = 5): LengthAwarePaginator
     {
         $query = Student::query();
@@ -22,6 +25,7 @@ class DbStudentInfrastructure implements StudentRepository
         return $query->orderBy('created_at','desc')->paginate($perPage);
     }
 
+    //Chuyển đổi model sang entity
     private function toEntity(Student $model): StudentEntity
     {
         return new StudentEntity(
@@ -38,6 +42,7 @@ class DbStudentInfrastructure implements StudentRepository
         );
     }
 
+    //Lấy tất cả học sinh
     public function all(?string $search): array
     {
         $query = Student::query();
@@ -47,6 +52,7 @@ class DbStudentInfrastructure implements StudentRepository
         return $query->orderBy('created_at','desc')->get()->map(fn($m) => $this->toEntity($m))->toArray();
     }
 
+    //Tạo học sinh mới
     public function create(StudentEntity $entity): StudentEntity
     {
         $model = Student::create([
@@ -60,11 +66,15 @@ class DbStudentInfrastructure implements StudentRepository
         ]);
         return $this->toEntity($model);
     }
+
+    //Tìm học sinh theo id
     public function find(int $id): ?StudentEntity
     {
         $model = Student::find($id);
         return $model ? $this->toEntity($model) : null;
     }
+
+    //Cập nhật học sinh
     public function update(int $id, StudentEntity $entity): ?StudentEntity
     {
         $model = Student::find($id);
@@ -84,6 +94,7 @@ class DbStudentInfrastructure implements StudentRepository
         return $this->toEntity($model);
     }
     
+    //Xóa học sinh
     public function delete(int $id): bool
     {
         $model = Student::find($id);

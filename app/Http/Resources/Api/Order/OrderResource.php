@@ -10,10 +10,10 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'customer_name' => $this->customerName,
-            'order_date' => $this->orderDate,
+            'customer_name' => $this->student['full_name'] ?? null,
+            'order_date' => $this->order_date,
             'status' => $this->status,
-            'payment_method' => $this->paymentMethod,
+            'payment_method' => $this->payment_method,
             'total' => $this->total,
             'student' => [
                 'full_name' => $this->student->full_name ?? '',
@@ -21,11 +21,10 @@ class OrderResource extends JsonResource
                 'phone' => $this->student->phone ?? '',
             ],
             'items' => $this->items?->map(fn($item) => [
-                'product_id' => $item->productId,
+                'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
                 'price' => $item->price,
-                'name' => $item->productName,
-                'image' => $item->productImage,
+                'subtotal' => $item->subtotal,
             ]),
         ];
     }

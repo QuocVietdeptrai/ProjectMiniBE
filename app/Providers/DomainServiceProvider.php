@@ -51,8 +51,6 @@ class DomainServiceProvider extends ServiceProvider
             AuthTokenServiceInterface::class,
             JwtAuthTokenService::class
         );
-
-        // Bind OtpService
         $this->app->bind(
             OtpServiceInterface::class,
             OtpService::class

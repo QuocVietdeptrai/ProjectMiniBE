@@ -17,7 +17,7 @@ class UpdateProfileRequest extends FormRequest
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
             'address' => 'sometimes|string|max:255',
-            'avatar' => 'sometimes|file|mimes:jpg,jpeg,png|max:5120', // 5MB
+            'image' => 'sometimes|file|mimes:jpg,jpeg,png|max:5120', // 5MB
         ];
     }
 
@@ -30,9 +30,9 @@ class UpdateProfileRequest extends FormRequest
             'phone.max' => 'Số điện thoại tối đa 20 ký tự',
             'address.string' => 'Địa chỉ phải là chuỗi',
             'address.max' => 'Địa chỉ tối đa 255 ký tự',
-            'avatar.file' => 'Avatar phải là file hợp lệ',
-            'avatar.mimes' => 'Avatar chỉ chấp nhận jpg, jpeg, png',
-            'avatar.max' => 'Avatar tối đa 5MB',
+            'image.file' => 'Avatar phải là file hợp lệ',
+            'image.mimes' => 'Avatar chỉ chấp nhận jpg, jpeg, png',
+            'image.max' => 'Avatar tối đa 5MB',
         ];
     }
 }

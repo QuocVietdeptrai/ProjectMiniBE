@@ -14,6 +14,7 @@ class OtpService implements OtpServiceInterface
         private UserRepositoryInterface $userRepository
     ) {}
 
+    //Lưu OTP cho user với thời gian hết hạn
     public function saveOtp(UserEntity $user, string $otp, int $expiryMinutes = 5): bool
     {
         $userModel = User::find($user->id);
@@ -24,6 +25,7 @@ class OtpService implements OtpServiceInterface
         return $userModel->save();
     }
 
+    //Tìm user theo OTP hợp lệ
     public function findByOtp(string $otp): ?UserEntity
     {
         $user = User::where('otp', $otp)

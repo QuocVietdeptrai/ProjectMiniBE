@@ -20,12 +20,9 @@ class LoginUseCase
     {
         // Lấy user model
         $userModel = $this->userRepository->findModelByEmail($request->email);
-
         if (!$userModel || !Hash::check($request->password, $userModel->password)) {
             throw new AuthenticationException('Email hoặc mật khẩu không đúng!');
         }
-
-        // Sinh token thông qua service
         $token = $this->tokenService->generateToken($userModel);
         $userEntity = $this->userRepository->toEntity($userModel);
         $this->userRepository->saveLastLogin($userEntity);

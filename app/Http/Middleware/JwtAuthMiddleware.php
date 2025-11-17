@@ -28,7 +28,7 @@ class JwtAuthMiddleware
             // XÁC THỰC TOKEN
             $user = JWTAuth::setToken($token)->authenticate();
 
-            // === 3. KIỂM TRA TRẠNG THÁI ACTIVE ===
+            // KIỂM TRA TRẠNG THÁI TÀI KHOẢN
             if ($user->status !== 'active') {
                 return response()->json([
                     'error' => 'ACCOUNT_INACTIVE',
@@ -37,7 +37,7 @@ class JwtAuthMiddleware
                 ->withCookie(cookie()->forget('access_token')); //Xóa token 
             }
 
-            // === 4. GẮN USER VÀO REQUEST ===
+            //Gán thông tin user đã xác thực vào request
             $request->attributes->set('auth_user', $user);
             return $next($request);
 

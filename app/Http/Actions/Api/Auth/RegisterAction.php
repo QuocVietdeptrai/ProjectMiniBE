@@ -17,7 +17,6 @@ class RegisterAction
     public function __invoke(RegisterRequest $request): MessageResource
     {
         $authEntity = ($this->useCase)($request);
-
         return ($this->responder)([
             'code' => 'success',
             'message' => $authEntity->message

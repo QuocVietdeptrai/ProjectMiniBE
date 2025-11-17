@@ -7,10 +7,11 @@ class OrderItemEntity
     public function __construct(
         public ?int $id,
         public int $orderId,
-        public int $productId,
+        public int $product_id,
         public int $quantity,
         public float $price,
-        public ?string $productName = null,
-        public ?string $productImage = null,
+        public ?float $subtotal = null,
+        public ?string $createdAt = null,
+        public ?string $updatedAt = null, 
     ) {}
 }

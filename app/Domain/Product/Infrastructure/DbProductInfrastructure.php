@@ -8,10 +8,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class DbProductInfrastructure implements ProductRepository
 {
+    //Đếm tổng số sản phẩm
     public function count(): int
     {
         return Product::count();
     }
+
+    //Phân trang sản phẩm 
     public function paginate(?string $search, int $perPage = 4): LengthAwarePaginator
     {
         $query = Product::query();
@@ -22,6 +25,8 @@ class DbProductInfrastructure implements ProductRepository
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
+
+    //Chuyển đổi model sang entity
     private function toEntity(Product $model): ProductEntity
     {
         return new ProductEntity(
@@ -36,6 +41,7 @@ class DbProductInfrastructure implements ProductRepository
         );
     }
 
+    //Lấy tất cả sản phẩm với tùy chọn tìm kiếm
     public function all(?string $search): array
     {
         $query = Product::query();
@@ -47,6 +53,7 @@ class DbProductInfrastructure implements ProductRepository
         return $query->orderBy('created_at', 'desc')->get()->map(fn($m) => $this->toEntity($m))->toArray();
     }
 
+    //Tạo sản phẩm mới
     public function create(ProductEntity $entity): ProductEntity
     {
         $model = Product::create([
@@ -60,12 +67,14 @@ class DbProductInfrastructure implements ProductRepository
         return $this->toEntity($model);
     }
 
+    //Tìm sản phẩm theo id
     public function find(int $id): ?ProductEntity
     {
         $model = Product::find($id);
         return $model ? $this->toEntity($model) : null;
     }
 
+    //Cập nhật sản phẩm
     public function update(int $id, ProductEntity $entity): ?ProductEntity
     {
         $model = Product::find($id);
@@ -82,6 +91,7 @@ class DbProductInfrastructure implements ProductRepository
         return $this->toEntity($model);
     }
 
+    //Xóa sản phẩm
     public function delete(int $id): bool
     {
         $model = Product::find($id);

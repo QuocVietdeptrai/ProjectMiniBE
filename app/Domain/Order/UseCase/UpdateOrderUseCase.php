@@ -8,6 +8,7 @@ use App\Domain\Order\Domain\Repository\OrderItemRepository;
 use App\Domain\Order\Domain\Repository\OrderRepository;
 use App\Models\Product;
 use App\Models\Student;
+use App\Domain\Order\Domain\Entity\OrderItemEntity;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UpdateOrderUseCase
@@ -54,9 +55,11 @@ class UpdateOrderUseCase
 
         // Hoàn kho nếu hủy đơn đã hoàn tất
         if ($oldStatus === 'completed' && $data['status'] !== 'completed') {
+            /** @var OrderItemEntity[] $oldItems */
             $oldItems = $this->itemRepo->getByOrderId($id);
             foreach ($oldItems as $item) {
-                $product = Product::find((int)$item->product_id);
+                /** @var OrderItemEntity $item */
+                $product = Product::find((int)$item->productId);
                 if ($product) {
                     $product->increment('quantity', (int)$item->quantity);
                 }

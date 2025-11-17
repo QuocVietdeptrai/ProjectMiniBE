@@ -28,6 +28,7 @@ class StoreOrderRequest extends FormRequest
             'products.*.id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.price' => 'required|numeric|min:0',
+            'products.*.subtotal' => 'required|numeric',
         ];
     }
 

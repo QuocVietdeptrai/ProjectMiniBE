@@ -5,6 +5,7 @@ namespace App\Domain\Auth\Usecase;
 use App\Domain\Auth\Domain\Entity\UserEntity;
 use App\Domain\Auth\Domain\Repository\UserRepositoryInterface;
 use App\Helpers\CloudinaryHelper;
+use Illuminate\Support\Facades\Log;
 
 class UpdateProfileUseCase{
     public function __construct(private UserRepositoryInterface $repo){}
@@ -20,8 +21,9 @@ class UpdateProfileUseCase{
         if(array_key_exists('address',$data)) $updateData['address'] = $data['address'];
 
         if($imageFile && $imageFile->isValid()){
-            $updateData['avatar'] = CloudinaryHelper::upload($imageFile,'students');
+            $updateData['image'] = CloudinaryHelper::upload($imageFile,'students');
         }
+        Log::info('Update Data: ', $updateData);
 
     $updatedEntity = new UserEntity(
         id: $id,
