@@ -5,7 +5,6 @@ namespace App\Domain\Auth\Usecase;
 use App\Domain\Auth\Domain\Entity\AuthEntity;
 use App\Domain\Auth\Domain\Entity\UserEntity;
 use App\Domain\Auth\Domain\Repository\UserRepositoryInterface;
-use App\Domain\Auth\Exception\AuthenticationException;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    //
-        protected $fillable = [
+    use HasFactory;
+    protected $fillable = [
         'full_name',
         'dob',
         'gender',
@@ -17,4 +18,9 @@ class Student extends Model
         'avatar',
         'order_id',
     ];
+    
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

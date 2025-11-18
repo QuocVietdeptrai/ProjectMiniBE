@@ -35,6 +35,6 @@ class LogoutAction
         ]);
 
         // Xóa cookie access_token
-        return $response->response()->withCookie(Cookie::forget('access_token'));
+        
     }
 }
