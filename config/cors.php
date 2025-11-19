@@ -5,7 +5,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:4000'], // frontend của bạn
+    'allowed_origins' => [
+        'https://project-mini-fe-62le.vercel.app', // frontend Vercel
+        'http://localhost:4000',                    // frontend local
+        'http://localhost:3000',                    // frontend local
+    ],
 
     'allowed_headers' => ['*'],
 
