@@ -13,7 +13,7 @@ class LogoutAction
     public function __construct(
         private LogoutUseCase $useCase,
         private MessageResponder $responder
-    ) {}    
+    ) {}
 
     public function __invoke(Request $request)
     {
@@ -25,16 +25,14 @@ class LogoutAction
                 'message' => 'Token not found'
             ])->response()->setStatusCode(StatusCode::UNAUTHORIZED);
         }
-
-        // Thực hiện logout logic nếu cần
         $this->useCase->__invoke($token);
 
         $response = ($this->responder)([
             'code' => 'success',
             'message' => 'Logout successful'
-        ]);
-
-        // Xóa cookie access_token
-        
+        ])->response();
+        return $response->withCookie(
+            Cookie::forget('access_token')
+        );
     }
 }
