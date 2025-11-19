@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('student_id')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('customer_name');
             $table->date('order_date');

@@ -5,7 +5,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000'], // frontend của bạn
+    'allowed_origins' => ['http://localhost:4000'], // frontend của bạn
 
     'allowed_headers' => ['*'],
 
