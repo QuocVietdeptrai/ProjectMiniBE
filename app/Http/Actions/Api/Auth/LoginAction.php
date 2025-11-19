@@ -28,8 +28,17 @@ class LoginAction
 
             // Tạo cookie cho token
             $cookie = cookie(
-                'access_token', $authEntity->token, 60 * 24, '/', null, false, true, false, 'lax'
+                'access_token',
+                $authEntity->token,
+                60 * 24,
+                '/',                          // path
+                'projectminibe.onrender.com',  // domain của backend
+                true,                          // secure: true khi dùng HTTPS
+                true,                          // httpOnly
+                false,
+                'none'                         // sameSite: 'none' để cross-site cookie
             );
+
 
             // Trả response kèm cookie
             return $response->cookie($cookie);
